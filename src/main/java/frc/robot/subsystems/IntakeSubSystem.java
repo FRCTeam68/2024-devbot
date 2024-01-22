@@ -11,6 +11,7 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class IntakeSubSystem extends SubsystemBase {
 
@@ -40,7 +41,7 @@ public class IntakeSubSystem extends SubsystemBase {
         m_presentState = State.IDLE;
         m_presentMode = Mode.VOLTAGE_FOC;
         m_setSpeed = 0;
-        m_intakeMotor = new TalonFX(14, "MANIPbus");
+        m_intakeMotor = new TalonFX(Constants.INTAKE.CANID, "MANIPbus");
 
           /* Start at velocity 0, enable FOC, no feed forward, use slot 0 */
         m_voltageVelocity = new VelocityVoltage(0, 0, true, 0, 0, 

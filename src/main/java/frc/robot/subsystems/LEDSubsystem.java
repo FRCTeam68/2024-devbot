@@ -44,6 +44,10 @@ public class LEDSubsystem extends SubsystemBase {
   @Override
   public void simulationPeriodic() {}
 
+  public void setShooter(boolean ready){
+    shooter=ready;
+  }
+
   private void setLEDs() {
     setBallLEDs();
     setShooterLEDs();

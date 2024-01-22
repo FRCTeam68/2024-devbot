@@ -11,10 +11,12 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.IntakeSubSystem;
 import frc.robot.subsystems.LEDSubsystem;
@@ -38,6 +40,9 @@ public class RobotContainer {
 
   IntakeSubSystem m_Intake = new IntakeSubSystem();
   LEDSubsystem m_LED = new LEDSubsystem();
+  DigitalInput m_noteSensor = new DigitalInput(0);
+  Trigger m_NoteSensorTrigger = new Trigger(m_noteSensor::get);
+
 
   private void configureBindings() {
     drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
@@ -62,6 +67,10 @@ public class RobotContainer {
     m_ps4Controller.L1().whileTrue(m_Intake.setStateCommand(IntakeSubSystem.State.INTAKING_CONE));
     m_ps4Controller.L2().whileTrue(m_Intake.setStateCommand(IntakeSubSystem.State.INTAKING_CUBE));
     m_ps4Controller.R2().whileTrue(m_Intake.setStateCommand(IntakeSubSystem.State.PLACING));
+
+
+    m_NoteSensorTrigger.onTrue(Commands.run(()->m_LED.setShooter(true)))
+                       .onFalse(Commands.run(()->m_LED.setShooter(false)));
 
   }
 

@@ -32,7 +32,9 @@ public class IntakeSubSystem extends SubsystemBase {
 
     private State m_presentState;
     private Mode m_presentMode;
-    private double m_setSpeed;
+    private double m_setPoint_Speed;
+    private double m_takeNote_Speed;
+    private double m_spitNote_Speed;
     private TalonFX m_intakeMotor;
     private VelocityVoltage m_voltageVelocity;
     private VelocityTorqueCurrentFOC m_torqueVelocity;
@@ -41,7 +43,10 @@ public class IntakeSubSystem extends SubsystemBase {
     public IntakeSubSystem(){
         m_presentState = State.IDLE;
         m_presentMode = Mode.VOLTAGE_FOC;
-        m_setSpeed = 0;
+        m_setPoint_Speed = 0;
+        m_takeNote_Speed = -20;
+        m_spitNote_Speed = 10;
+
         m_intakeMotor = new TalonFX(Constants.INTAKE.CANID);
         // m_intakeMotor = new TalonFX(Constants.INTAKE.CANID, "MANIPbus");
 
@@ -88,19 +93,27 @@ public class IntakeSubSystem extends SubsystemBase {
         }
     }
 
+    public void setTakeNoteSpeed(double desiredSpeed){
+        m_takeNote_Speed=desiredSpeed;
+    }
+
+    public void setSpitNoteSpeed(double desiredSpeed){
+        m_spitNote_Speed=desiredSpeed;
+    }
+
     public void setSpeed(double desiredRotationsPerSecond){
 
-        System.out.println("set intake speed: " + desiredRotationsPerSecond);
+        System.out.println("set intake desired speed: " + desiredRotationsPerSecond);
 
         if (Math.abs(desiredRotationsPerSecond) <= 1) { // Joystick deadzone
             desiredRotationsPerSecond = 0;
-            m_setSpeed = 0;
+            m_setPoint_Speed = 0;
             /* Disable the motor instead */
             //m_intakeMotor.setControl(m_brake);
             m_intakeMotor.setControl(m_brake);
         }
         else
-            m_setSpeed = desiredRotationsPerSecond;
+            m_setPoint_Speed = desiredRotationsPerSecond;
 
             System.out.println("intake present mode: " + m_presentMode.toString());
             switch(m_presentMode){
@@ -109,7 +122,7 @@ public class IntakeSubSystem extends SubsystemBase {
                     /* Use voltage velocity */
                     //m_intakeMotor.setControl(m_voltageVelocity.withVelocity(desiredRotationsPerSecond));
                     System.out.println("call motor voltage foc");
-                    m_intakeMotor.setControl(m_voltageVelocity.withVelocity(m_setSpeed));
+                    m_intakeMotor.setControl(m_voltageVelocity.withVelocity(m_setPoint_Speed));
 
                     break;
         
@@ -118,13 +131,21 @@ public class IntakeSubSystem extends SubsystemBase {
                     /* Use torque velocity */
                     //m_intakeMotor.setControl(m_torqueVelocity.withVelocity(desiredRotationsPerSecond).withFeedForward(friction_torque));
                     System.out.println("call motor torqueVelocity");
-                    m_intakeMotor.setControl(m_torqueVelocity.withVelocity(m_setSpeed).withFeedForward(friction_torque));
+                    m_intakeMotor.setControl(m_torqueVelocity.withVelocity(m_setPoint_Speed).withFeedForward(friction_torque));
                     break;
             }
     }
 
     public double getSpeed(){
-        return this.m_setSpeed;
+        return this.m_setPoint_Speed;
+    }
+
+    public double getTakeNoteSpeed(){
+        return this.m_takeNote_Speed;
+    }
+
+    public double getSpitNoteSpeed(){
+        return this.m_spitNote_Speed;
     }
 
     @Override
@@ -132,7 +153,9 @@ public class IntakeSubSystem extends SubsystemBase {
         builder.setSmartDashboardType("Intake");
         builder.setActuator(true);
         builder.setSafeState(() -> setState(State.BREAK));
-        builder.addDoubleProperty("speed", this::getSpeed,this::setSpeed);
+        builder.addDoubleProperty("setpoint speed", this::getSpeed,this::setSpeed);
+        builder.addDoubleProperty("take note speed", this::getTakeNoteSpeed,this::setTakeNoteSpeed);
+        builder.addDoubleProperty("spit note speed", this::getSpitNoteSpeed,this::setSpitNoteSpeed);
         builder.addStringProperty("State", () -> m_presentState.toString(),null);
         builder.addStringProperty("Mode", () -> m_presentMode.toString(),null);
 
@@ -191,10 +214,10 @@ public class IntakeSubSystem extends SubsystemBase {
         switch(wantedState){
 
             case TAKE_NOTE:   // circle
-                desiredSpeed = -20;
+                desiredSpeed = m_takeNote_Speed;
                 break;
             case SPIT_NOTE:   // square
-                desiredSpeed = 10;
+                desiredSpeed = m_spitNote_Speed;
                 break;
             case BREAK:       // TBD
                 desiredSpeed = 0;

@@ -8,8 +8,8 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
+// import edu.wpi.first.wpilibj2.command.Command;
+// import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -17,11 +17,9 @@ public class IntakeSubSystem extends SubsystemBase {
 
     public enum State{
         IDLE,
-        INTAKING_CONE,
-        INTAKING_CUBE,
-        IDLE_CUBE,
-        PLACING,
-        SHOOT
+        TAKE_NOTE,
+        SPIT_NOTE,
+        BREAK
     }
 
     public enum Mode{
@@ -133,41 +131,41 @@ public class IntakeSubSystem extends SubsystemBase {
         System.out.println("initsendable called");
     }
 
-    public Command setStateCommand(State wantedState) {
-		m_presentState = wantedState;
+    // public Command setStateCommand(State wantedState) {
+	// 	m_presentState = wantedState;
 
-        double desiredSpeed = 0;
+    //     double desiredSpeed = 0;
 
-        System.out.println("set state command" + wantedState.toString());
+    //     System.out.println("set state command" + wantedState.toString());
 
-        switch(wantedState){
+    //     switch(wantedState){
 
-            case INTAKING_CONE:   // L1ButtonPressed
-                desiredSpeed = -50; //-1);
-                break;
-            case INTAKING_CUBE:   // L2ButtonPressed
-                desiredSpeed = -15; //-.3);
-                break;
-            case PLACING:         // R2ButtonPressed
-                desiredSpeed = 10; //.15);
-                break;
-            // case IDLE_CUBE:
-            //     desiredSpeed = -5; //-.1);
-            //     break;
-            // case SHOOT:
-            //     desiredSpeed = 50; //1);
-            //     break;
-            default:
-            case IDLE:
-                desiredSpeed = 0;
-                break;
-        }
-        m_setSpeed = desiredSpeed;
+    //         case INTAKING_CONE:   // L1ButtonPressed
+    //             desiredSpeed = -50; //-1);
+    //             break;
+    //         case INTAKING_CUBE:   // L2ButtonPressed
+    //             desiredSpeed = -15; //-.3);
+    //             break;
+    //         case PLACING:         // R2ButtonPressed
+    //             desiredSpeed = 10; //.15);
+    //             break;
+    //         // case IDLE_CUBE:
+    //         //     desiredSpeed = -5; //-.1);
+    //         //     break;
+    //         // case SHOOT:
+    //         //     desiredSpeed = 50; //1);
+    //         //     break;
+    //         default:
+    //         case IDLE:
+    //             desiredSpeed = 0;
+    //             break;
+    //     }
+    //     m_setSpeed = desiredSpeed;
 
-        // return setIntakeSpeedCommand(desiredSpeed);
-        return this.runOnce(() -> 
-                m_intakeMotor.setControl(m_voltageVelocity.withVelocity(m_setSpeed)));
-	}
+    //     // return setIntakeSpeedCommand(desiredSpeed);
+    //     return this.runOnce(() -> 
+    //             m_intakeMotor.setControl(m_voltageVelocity.withVelocity(m_setSpeed)));
+	// }
 
     public void setState(State wantedState) {
 		m_presentState = wantedState;
@@ -178,20 +176,14 @@ public class IntakeSubSystem extends SubsystemBase {
 
         switch(wantedState){
 
-            case INTAKING_CONE:   // L1ButtonPressed
-                desiredSpeed = -50; //-1);
+            case TAKE_NOTE:   // circle
+                desiredSpeed = -20;
                 break;
-            case INTAKING_CUBE:   // L2ButtonPressed
-                desiredSpeed = -15; //-.3);
+            case SPIT_NOTE:   // square
+                desiredSpeed = 10;
                 break;
-            case PLACING:         // R2ButtonPressed
-                desiredSpeed = 10; //.15);
-                break;
-            // case IDLE_CUBE:
-            //     desiredSpeed = -5; //-.1);
-            //     break;
-            // case SHOOT:
-            //     desiredSpeed = 50; //1);
+            // case BREAK:       // TBD
+            //     desiredSpeed = 0;
             //     break;
             default:
             case IDLE:

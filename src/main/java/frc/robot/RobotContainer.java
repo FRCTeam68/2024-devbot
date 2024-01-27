@@ -55,6 +55,7 @@ public class RobotContainer {
     Shuffleboard.getTab("IntakeSubsystem").add(m_Intake);
 
     // Log Shuffleboard events for command initialize, execute, finish, interrupt
+    // shuffleboard has to be recording
     CommandScheduler.getInstance()
         .onCommandInitialize(
             command ->
@@ -104,10 +105,9 @@ public class RobotContainer {
     // m_ps4Controller.R2().onTrue(m_Intake.setStateCommand(IntakeSubSystem.State.PLACING));
     // m_ps4Controller.R1().onTrue(m_Intake.setStateCommand(IntakeSubSystem.State.IDLE));
 
-    m_ps4Controller.L1().onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.INTAKING_CONE)));
-    m_ps4Controller.L2().onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.INTAKING_CUBE)));
-    m_ps4Controller.R2().onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.PLACING)));
-    m_ps4Controller.R1().onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.IDLE)));
+    m_ps4Controller.circle().onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.TAKE_NOTE)));
+    m_ps4Controller.square().onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.SPIT_NOTE)));
+    m_ps4Controller.cross().onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.IDLE)));
 
 
     // m_NoteSensorTrigger.onTrue(Commands.run(()->m_LED.setShooter(true)))

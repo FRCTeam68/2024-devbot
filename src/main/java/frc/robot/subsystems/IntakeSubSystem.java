@@ -87,40 +87,40 @@ public class IntakeSubSystem extends SubsystemBase {
         }
     }
 
-    public Command setIntakeSpeedCommand(double desiredRotationsPerSecond){
-        Command toRun;
+    // public Command setIntakeSpeedCommand(double desiredRotationsPerSecond){
+    //     Command toRun;
 
-        System.out.println("set intake speed: " + desiredRotationsPerSecond);
+    //     System.out.println("set intake speed: " + desiredRotationsPerSecond);
 
-        if (Math.abs(desiredRotationsPerSecond) <= 1) { // Joystick deadzone
-            desiredRotationsPerSecond = 0;
-            m_setSpeed = 0;
-            /* Disable the motor instead */
-            //m_intakeMotor.setControl(m_brake);
-            toRun = Commands.runOnce(() -> m_intakeMotor.setControl(m_brake));
-        }
-        else
-            m_setSpeed = desiredRotationsPerSecond;
+    //     if (Math.abs(desiredRotationsPerSecond) <= 1) { // Joystick deadzone
+    //         desiredRotationsPerSecond = 0;
+    //         m_setSpeed = 0;
+    //         /* Disable the motor instead */
+    //         //m_intakeMotor.setControl(m_brake);
+    //         toRun = Commands.runOnce(() -> m_intakeMotor.setControl(m_brake));
+    //     }
+    //     else
+    //         m_setSpeed = desiredRotationsPerSecond;
 
-            switch(m_presentMode){
-                default:
-                case VOLTAGE_FOC:
-                    /* Use voltage velocity */
-                    //m_intakeMotor.setControl(m_voltageVelocity.withVelocity(desiredRotationsPerSecond));
-                    toRun = Commands.runOnce(() -> 
-                            m_intakeMotor.setControl(m_voltageVelocity.withVelocity(m_setSpeed)));
-                    break;
+    //         switch(m_presentMode){
+    //             default:
+    //             case VOLTAGE_FOC:
+    //                 /* Use voltage velocity */
+    //                 //m_intakeMotor.setControl(m_voltageVelocity.withVelocity(desiredRotationsPerSecond));
+    //                 toRun = Commands.runOnce(() -> 
+    //                         m_intakeMotor.setControl(m_voltageVelocity.withVelocity(m_setSpeed)));
+    //                 break;
         
-                case CURRENTTORQUE_FOC:
-                    double friction_torque = (desiredRotationsPerSecond > 0) ? 1 : -1; // To account for friction, we add this to the arbitrary feed forward
-                    /* Use torque velocity */
-                    //m_intakeMotor.setControl(m_torqueVelocity.withVelocity(desiredRotationsPerSecond).withFeedForward(friction_torque));
-                    toRun = Commands.runOnce(() -> 
-                            m_intakeMotor.setControl(m_torqueVelocity.withVelocity(m_setSpeed).withFeedForward(friction_torque)));
-                    break;
-            }
-        return toRun;
-    }
+    //             case CURRENTTORQUE_FOC:
+    //                 double friction_torque = (desiredRotationsPerSecond > 0) ? 1 : -1; // To account for friction, we add this to the arbitrary feed forward
+    //                 /* Use torque velocity */
+    //                 //m_intakeMotor.setControl(m_torqueVelocity.withVelocity(desiredRotationsPerSecond).withFeedForward(friction_torque));
+    //                 toRun = Commands.runOnce(() -> 
+    //                         m_intakeMotor.setControl(m_torqueVelocity.withVelocity(m_setSpeed).withFeedForward(friction_torque)));
+    //                 break;
+    //         }
+    //     return toRun;
+    // }
 
     @Override
     public void initSendable(SendableBuilder builder) {
@@ -167,6 +167,41 @@ public class IntakeSubSystem extends SubsystemBase {
         // return setIntakeSpeedCommand(desiredSpeed);
         return this.runOnce(() -> 
                 m_intakeMotor.setControl(m_voltageVelocity.withVelocity(m_setSpeed)));
+	}
+
+    public void setState(State wantedState) {
+		m_presentState = wantedState;
+
+        double desiredSpeed = 0;
+
+        System.out.println("set state command" + wantedState.toString());
+
+        switch(wantedState){
+
+            case INTAKING_CONE:   // L1ButtonPressed
+                desiredSpeed = -50; //-1);
+                break;
+            case INTAKING_CUBE:   // L2ButtonPressed
+                desiredSpeed = -15; //-.3);
+                break;
+            case PLACING:         // R2ButtonPressed
+                desiredSpeed = 10; //.15);
+                break;
+            // case IDLE_CUBE:
+            //     desiredSpeed = -5; //-.1);
+            //     break;
+            // case SHOOT:
+            //     desiredSpeed = 50; //1);
+            //     break;
+            default:
+            case IDLE:
+                desiredSpeed = 0;
+                break;
+        }
+        m_setSpeed = desiredSpeed;
+
+        // return setIntakeSpeedCommand(desiredSpeed);
+        m_intakeMotor.setControl(m_voltageVelocity.withVelocity(m_setSpeed));
 	}
 
     public State getState(){

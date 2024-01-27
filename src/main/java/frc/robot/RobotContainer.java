@@ -4,31 +4,34 @@
 
 package frc.robot;
 
-import com.ctre.phoenix6.Utils;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
+// import com.ctre.phoenix6.Utils;
+// import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
+// import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.DigitalInput;
+// import edu.wpi.first.math.geometry.Pose2d;
+// import edu.wpi.first.math.geometry.Rotation2d;
+// import edu.wpi.first.math.geometry.Translation2d;
+// import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.PS4Controller;
+import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.generated.TunerConstants;
+// import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+// import edu.wpi.first.wpilibj2.command.button.Trigger;
+// import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.IntakeSubSystem;
-import frc.robot.subsystems.LEDSubsystem;
+// import frc.robot.subsystems.LEDSubsystem;
 
 public class RobotContainer {
-  private double MaxSpeed = 6; // 6 meters per second desired top speed
-  private double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
+  // private double MaxSpeed = 6; // 6 meters per second desired top speed
+  // private double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
 
   /* Setting up bindings for necessary control of the swerve drive platform */
   // private final CommandXboxController m_xboxController = new CommandXboxController(0); // My joystick
-  private final CommandPS4Controller m_ps4Controller = new CommandPS4Controller(1);
+  CommandPS4Controller m_ps4Controller = new CommandPS4Controller(1);
   // private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
 
   // private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -40,12 +43,38 @@ public class RobotContainer {
   // private final Telemetry logger = new Telemetry(MaxSpeed);
 
   IntakeSubSystem m_Intake = new IntakeSubSystem();
-  LEDSubsystem m_LED = new LEDSubsystem();
-  DigitalInput m_noteSensor = new DigitalInput(0);
-  Trigger m_NoteSensorTrigger = new Trigger(m_noteSensor::get);
+  // LEDSubsystem m_LED = new LEDSubsystem();
+  // DigitalInput m_noteSensor = new DigitalInput(0);
+  // Trigger m_NoteSensorTrigger = new Trigger(m_noteSensor::get);
 
   public RobotContainer() {
     configureBindings();
+
+       // Put subsystems to dashboard.
+    // Shuffleboard.getTab("Drivetrain").add(m_robotDrive);
+    Shuffleboard.getTab("IntakeSubsystem").add(m_Intake);
+
+    // Log Shuffleboard events for command initialize, execute, finish, interrupt
+    CommandScheduler.getInstance()
+        .onCommandInitialize(
+            command ->
+                Shuffleboard.addEventMarker(
+                    "Command initialized", command.getName(), EventImportance.kNormal));
+    CommandScheduler.getInstance()
+        .onCommandExecute(
+            command ->
+                Shuffleboard.addEventMarker(
+                    "Command executed", command.getName(), EventImportance.kNormal));
+    CommandScheduler.getInstance()
+        .onCommandFinish(
+            command ->
+                Shuffleboard.addEventMarker(
+                    "Command finished", command.getName(), EventImportance.kNormal));
+    CommandScheduler.getInstance()
+        .onCommandInterrupt(
+            command ->
+                Shuffleboard.addEventMarker(
+                    "Command interrupted", command.getName(), EventImportance.kNormal));
   }
 
   private void configureBindings() {
@@ -70,10 +99,15 @@ public class RobotContainer {
 
     System.out.println("config bindings");
 
-    m_ps4Controller.L1().onTrue(m_Intake.setStateCommand(IntakeSubSystem.State.INTAKING_CONE));
-    m_ps4Controller.L2().onTrue(m_Intake.setStateCommand(IntakeSubSystem.State.INTAKING_CUBE));
-    m_ps4Controller.R2().onTrue(m_Intake.setStateCommand(IntakeSubSystem.State.PLACING));
-    m_ps4Controller.R1().onTrue(m_Intake.setStateCommand(IntakeSubSystem.State.IDLE));
+    // m_ps4Controller.L1().onTrue(m_Intake.setStateCommand(IntakeSubSystem.State.INTAKING_CONE));
+    // m_ps4Controller.L2().onTrue(m_Intake.setStateCommand(IntakeSubSystem.State.INTAKING_CUBE));
+    // m_ps4Controller.R2().onTrue(m_Intake.setStateCommand(IntakeSubSystem.State.PLACING));
+    // m_ps4Controller.R1().onTrue(m_Intake.setStateCommand(IntakeSubSystem.State.IDLE));
+
+    m_ps4Controller.L1().onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.INTAKING_CONE)));
+    m_ps4Controller.L2().onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.INTAKING_CUBE)));
+    m_ps4Controller.R2().onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.PLACING)));
+    m_ps4Controller.R1().onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.IDLE)));
 
 
     // m_NoteSensorTrigger.onTrue(Commands.run(()->m_LED.setShooter(true)))

@@ -8,6 +8,7 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 // import edu.wpi.first.wpilibj2.command.Command;
@@ -128,11 +129,18 @@ public class IntakeSubSystem extends SubsystemBase {
 
     @Override
     public void initSendable(SendableBuilder builder) {
-        super.initSendable(builder);
-        // Publish the intake state to telemetry.
-        builder.addDoubleProperty("Speed", this::getSpeed,this::setSpeed);
+        builder.setSmartDashboardType("Intake");
+        builder.setActuator(true);
+        builder.setSafeState(() -> setState(State.BREAK));
+        builder.addDoubleProperty("speed", this::getSpeed,this::setSpeed);
         builder.addStringProperty("State", () -> m_presentState.toString(),null);
         builder.addStringProperty("Mode", () -> m_presentMode.toString(),null);
+
+        // super.initSendable(builder);
+        // // Publish the intake state to telemetry.
+        // builder.addDoubleProperty("Speed", this::getSpeed,this::setSpeed);
+        // builder.addStringProperty("State", () -> m_presentState.toString(),null);
+        // builder.addStringProperty("Mode", () -> m_presentMode.toString(),null);
 
         System.out.println("initsendable called");
     }
@@ -188,9 +196,9 @@ public class IntakeSubSystem extends SubsystemBase {
             case SPIT_NOTE:   // square
                 desiredSpeed = 10;
                 break;
-            // case BREAK:       // TBD
-            //     desiredSpeed = 0;
-            //     break;
+            case BREAK:       // TBD
+                desiredSpeed = 0;
+                break;
             default:
             case IDLE:
                 desiredSpeed = 0;

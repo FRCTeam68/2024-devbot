@@ -8,6 +8,8 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 // import edu.wpi.first.wpilibj2.command.Command;
 // import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -85,46 +87,50 @@ public class IntakeSubSystem extends SubsystemBase {
         }
     }
 
-    // public Command setIntakeSpeedCommand(double desiredRotationsPerSecond){
-    //     Command toRun;
+    public void setSpeed(double desiredRotationsPerSecond){
 
-    //     System.out.println("set intake speed: " + desiredRotationsPerSecond);
+        System.out.println("set intake speed: " + desiredRotationsPerSecond);
 
-    //     if (Math.abs(desiredRotationsPerSecond) <= 1) { // Joystick deadzone
-    //         desiredRotationsPerSecond = 0;
-    //         m_setSpeed = 0;
-    //         /* Disable the motor instead */
-    //         //m_intakeMotor.setControl(m_brake);
-    //         toRun = Commands.runOnce(() -> m_intakeMotor.setControl(m_brake));
-    //     }
-    //     else
-    //         m_setSpeed = desiredRotationsPerSecond;
+        if (Math.abs(desiredRotationsPerSecond) <= 1) { // Joystick deadzone
+            desiredRotationsPerSecond = 0;
+            m_setSpeed = 0;
+            /* Disable the motor instead */
+            //m_intakeMotor.setControl(m_brake);
+            m_intakeMotor.setControl(m_brake);
+        }
+        else
+            m_setSpeed = desiredRotationsPerSecond;
 
-    //         switch(m_presentMode){
-    //             default:
-    //             case VOLTAGE_FOC:
-    //                 /* Use voltage velocity */
-    //                 //m_intakeMotor.setControl(m_voltageVelocity.withVelocity(desiredRotationsPerSecond));
-    //                 toRun = Commands.runOnce(() -> 
-    //                         m_intakeMotor.setControl(m_voltageVelocity.withVelocity(m_setSpeed)));
-    //                 break;
+            System.out.println("intake present mode: " + m_presentMode.toString());
+            switch(m_presentMode){
+                default:
+                case VOLTAGE_FOC:
+                    /* Use voltage velocity */
+                    //m_intakeMotor.setControl(m_voltageVelocity.withVelocity(desiredRotationsPerSecond));
+                    System.out.println("call motor voltage foc");
+                    m_intakeMotor.setControl(m_voltageVelocity.withVelocity(m_setSpeed));
+
+                    break;
         
-    //             case CURRENTTORQUE_FOC:
-    //                 double friction_torque = (desiredRotationsPerSecond > 0) ? 1 : -1; // To account for friction, we add this to the arbitrary feed forward
-    //                 /* Use torque velocity */
-    //                 //m_intakeMotor.setControl(m_torqueVelocity.withVelocity(desiredRotationsPerSecond).withFeedForward(friction_torque));
-    //                 toRun = Commands.runOnce(() -> 
-    //                         m_intakeMotor.setControl(m_torqueVelocity.withVelocity(m_setSpeed).withFeedForward(friction_torque)));
-    //                 break;
-    //         }
-    //     return toRun;
-    // }
+                case CURRENTTORQUE_FOC:
+                    double friction_torque = (desiredRotationsPerSecond > 0) ? 1 : -1; // To account for friction, we add this to the arbitrary feed forward
+                    /* Use torque velocity */
+                    //m_intakeMotor.setControl(m_torqueVelocity.withVelocity(desiredRotationsPerSecond).withFeedForward(friction_torque));
+                    System.out.println("call motor torqueVelocity");
+                    m_intakeMotor.setControl(m_torqueVelocity.withVelocity(m_setSpeed).withFeedForward(friction_torque));
+                    break;
+            }
+    }
+
+    public double getSpeed(){
+        return this.m_setSpeed;
+    }
 
     @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
         // Publish the intake state to telemetry.
-        builder.addDoubleProperty("Speed", () -> m_setSpeed,null);
+        builder.addDoubleProperty("Speed", this::getSpeed,this::setSpeed);
         builder.addStringProperty("State", () -> m_presentState.toString(),null);
         builder.addStringProperty("Mode", () -> m_presentMode.toString(),null);
 
@@ -190,10 +196,11 @@ public class IntakeSubSystem extends SubsystemBase {
                 desiredSpeed = 0;
                 break;
         }
-        m_setSpeed = desiredSpeed;
+        // m_setSpeed = desiredSpeed;
 
         // return setIntakeSpeedCommand(desiredSpeed);
-        m_intakeMotor.setControl(m_voltageVelocity.withVelocity(m_setSpeed));
+        // m_intakeMotor.setControl(m_voltageVelocity.withVelocity(m_setSpeed));
+        this.setSpeed(desiredSpeed);
 	}
 
     public State getState(){

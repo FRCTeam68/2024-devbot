@@ -41,7 +41,8 @@ public class IntakeSubSystem extends SubsystemBase {
         m_presentState = State.IDLE;
         m_presentMode = Mode.VOLTAGE_FOC;
         m_setSpeed = 0;
-        m_intakeMotor = new TalonFX(Constants.INTAKE.CANID, "MANIPbus");
+        m_intakeMotor = new TalonFX(Constants.INTAKE.CANID);
+        // m_intakeMotor = new TalonFX(Constants.INTAKE.CANID, "MANIPbus");
 
           /* Start at velocity 0, enable FOC, no feed forward, use slot 0 */
         m_voltageVelocity = new VelocityVoltage(0, 0, true, 0, 0, 
@@ -51,6 +52,8 @@ public class IntakeSubSystem extends SubsystemBase {
                                          false, false, false);
         /* Keep a neutral out so we can disable the motor */
         m_brake = new NeutralOut();
+
+        System.out.println("intake subsystem created");
         
 
         TalonFXConfiguration configs = new TalonFXConfiguration();
@@ -86,6 +89,8 @@ public class IntakeSubSystem extends SubsystemBase {
 
     public Command setIntakeSpeedCommand(double desiredRotationsPerSecond){
         Command toRun;
+
+        System.out.println("set intake speed: " + desiredRotationsPerSecond);
 
         if (Math.abs(desiredRotationsPerSecond) <= 1) { // Joystick deadzone
             desiredRotationsPerSecond = 0;
@@ -124,12 +129,16 @@ public class IntakeSubSystem extends SubsystemBase {
         builder.addDoubleProperty("Speed", () -> m_setSpeed,null);
         builder.addStringProperty("State", () -> m_presentState.toString(),null);
         builder.addStringProperty("Mode", () -> m_presentMode.toString(),null);
+
+        System.out.println("initsendable called");
     }
 
     public Command setStateCommand(State wantedState) {
 		m_presentState = wantedState;
 
         double desiredSpeed = 0;
+
+        System.out.println("set state command" + wantedState.toString());
 
         switch(wantedState){
 
@@ -153,7 +162,11 @@ public class IntakeSubSystem extends SubsystemBase {
                 desiredSpeed = 0;
                 break;
         }
-        return setIntakeSpeedCommand(desiredSpeed);
+        m_setSpeed = desiredSpeed;
+
+        // return setIntakeSpeedCommand(desiredSpeed);
+        return this.runOnce(() -> 
+                m_intakeMotor.setControl(m_voltageVelocity.withVelocity(m_setSpeed)));
 	}
 
     public State getState(){

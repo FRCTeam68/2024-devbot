@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
+import frc.robot.subsystems.AngleSubSystem;
 // import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 // import edu.wpi.first.wpilibj2.command.button.Trigger;
 // import frc.robot.generated.TunerConstants;
@@ -43,6 +44,7 @@ public class RobotContainer {
   // private final Telemetry logger = new Telemetry(MaxSpeed);
 
   IntakeSubSystem m_Intake = new IntakeSubSystem();
+  AngleSubSystem m_Angle = new AngleSubSystem();
   // LEDSubsystem m_LED = new LEDSubsystem();
   // DigitalInput m_noteSensor = new DigitalInput(0);
   // Trigger m_NoteSensorTrigger = new Trigger(m_noteSensor::get);
@@ -53,29 +55,9 @@ public class RobotContainer {
        // Put subsystems to dashboard.
     // Shuffleboard.getTab("Drivetrain").add(m_robotDrive);
     Shuffleboard.getTab("IntakeSubsystem").add(m_Intake);
+    Shuffleboard.getTab("AngleSubsystem").add(m_Angle);
 
-    // Log Shuffleboard events for command initialize, execute, finish, interrupt
-    // shuffleboard has to be recording
-    CommandScheduler.getInstance()
-        .onCommandInitialize(
-            command ->
-                Shuffleboard.addEventMarker(
-                    "Command initialized", command.getName(), EventImportance.kNormal));
-    CommandScheduler.getInstance()
-        .onCommandExecute(
-            command ->
-                Shuffleboard.addEventMarker(
-                    "Command executed", command.getName(), EventImportance.kNormal));
-    CommandScheduler.getInstance()
-        .onCommandFinish(
-            command ->
-                Shuffleboard.addEventMarker(
-                    "Command finished", command.getName(), EventImportance.kNormal));
-    CommandScheduler.getInstance()
-        .onCommandInterrupt(
-            command ->
-                Shuffleboard.addEventMarker(
-                    "Command interrupted", command.getName(), EventImportance.kNormal));
+
   }
 
   private void configureBindings() {
@@ -109,6 +91,10 @@ public class RobotContainer {
     m_ps4Controller.square().onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.SPIT_NOTE)));
     m_ps4Controller.cross().onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.IDLE)));
 
+    m_ps4Controller.L1().onTrue(Commands.runOnce(()->m_Angle.setState(AngleSubSystem.State.SPEAKER)));
+    m_ps4Controller.L2().onTrue(Commands.runOnce(()->m_Angle.setState(AngleSubSystem.State.AMP)));
+    m_ps4Controller.R1().onTrue(Commands.runOnce(()->m_Angle.setState(AngleSubSystem.State.TRAP)));
+    m_ps4Controller.R2().onTrue(Commands.runOnce(()->m_Angle.setState(AngleSubSystem.State.FEED)));
 
     // m_NoteSensorTrigger.onTrue(Commands.run(()->m_LED.setShooter(true)))
     //                    .onFalse(Commands.run(()->m_LED.setShooter(false)));

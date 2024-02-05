@@ -25,6 +25,7 @@ import frc.robot.subsystems.AngleSubSystem;
 // import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.IntakeSubSystem;
 // import frc.robot.subsystems.LEDSubsystem;
+import frc.robot.subsystems.ShooterSubSystem;
 
 public class RobotContainer {
   // private double MaxSpeed = 6; // 6 meters per second desired top speed
@@ -44,6 +45,7 @@ public class RobotContainer {
   // private final Telemetry logger = new Telemetry(MaxSpeed);
 
   IntakeSubSystem m_Intake = new IntakeSubSystem();
+  ShooterSubSystem m_Shooter = new ShooterSubSystem();
   AngleSubSystem m_Angle = new AngleSubSystem();
   // LEDSubsystem m_LED = new LEDSubsystem();
   // DigitalInput m_noteSensor = new DigitalInput(0);
@@ -55,8 +57,8 @@ public class RobotContainer {
        // Put subsystems to dashboard.
     // Shuffleboard.getTab("Drivetrain").add(m_robotDrive);
     Shuffleboard.getTab("IntakeSubsystem").add(m_Intake);
+    Shuffleboard.getTab("ShooterSubystem").add(m_Shooter);
     Shuffleboard.getTab("AngleSubsystem").add(m_Angle);
-
 
   }
 
@@ -82,20 +84,18 @@ public class RobotContainer {
 
     System.out.println("config bindings");
 
-    // m_ps4Controller.L1().onTrue(m_Intake.setStateCommand(IntakeSubSystem.State.INTAKING_CONE));
-    // m_ps4Controller.L2().onTrue(m_Intake.setStateCommand(IntakeSubSystem.State.INTAKING_CUBE));
-    // m_ps4Controller.R2().onTrue(m_Intake.setStateCommand(IntakeSubSystem.State.PLACING));
-    // m_ps4Controller.R1().onTrue(m_Intake.setStateCommand(IntakeSubSystem.State.IDLE));
-
     m_ps4Controller.circle().onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.TAKE_NOTE)));
     m_ps4Controller.square().onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.SPIT_NOTE)));
     m_ps4Controller.cross().onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.IDLE)));
 
-    m_ps4Controller.L1().onTrue(Commands.runOnce(()->m_Angle.setState(AngleSubSystem.State.SPEAKER)));
-    m_ps4Controller.L2().onTrue(Commands.runOnce(()->m_Angle.setState(AngleSubSystem.State.AMP)));
-    m_ps4Controller.R1().onTrue(Commands.runOnce(()->m_Angle.setState(AngleSubSystem.State.TRAP)));
-    m_ps4Controller.R2().onTrue(Commands.runOnce(()->m_Angle.setState(AngleSubSystem.State.FEED)));
+    m_ps4Controller.povUp().onTrue(Commands.runOnce(()->m_Angle.setState(AngleSubSystem.State.SPEAKER)));
+    m_ps4Controller.povLeft().onTrue(Commands.runOnce(()->m_Angle.setState(AngleSubSystem.State.AMP)));
+    m_ps4Controller.povRight().onTrue(Commands.runOnce(()->m_Angle.setState(AngleSubSystem.State.TRAP)));
+    m_ps4Controller.povDown().onTrue(Commands.runOnce(()->m_Angle.setState(AngleSubSystem.State.FEED)));
 
+    m_ps4Controller.L1().onTrue(Commands.runOnce(()->m_Shooter.setState(ShooterSubSystem.State.IDLE)));
+    m_ps4Controller.L2().onTrue(Commands.runOnce(()->m_Shooter.setState(ShooterSubSystem.State.SPINUP)));
+   
     // m_NoteSensorTrigger.onTrue(Commands.run(()->m_LED.setShooter(true)))
     //                    .onFalse(Commands.run(()->m_LED.setShooter(false)));
 

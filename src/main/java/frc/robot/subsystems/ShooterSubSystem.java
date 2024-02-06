@@ -53,11 +53,11 @@ public class ShooterSubSystem extends SubsystemBase {
     }
 
     private void shooterMotorsInit(){
-        m_shooterLeftMotor = new TalonFX(Constants.INTAKE.CANID);
-        m_shooterRightMotor = new TalonFX(Constants.INTAKE.CANID);
+        m_shooterLeftMotor = new TalonFX(Constants.SHOOTER.LEFT_CANID);
+        m_shooterRightMotor = new TalonFX(Constants.SHOOTER.RIGHT_CANID);
 
-        m_shooterLeftMotor.setInverted(false);
-        m_shooterRightMotor.setInverted(true);
+        m_shooterLeftMotor.setInverted(true);
+        m_shooterRightMotor.setInverted(false);
 
           /* Start at velocity 0, enable FOC, no feed forward, use slot 0 */
         m_voltageVelocity = new VelocityVoltage(0, 0, true, 0, 0, 
@@ -133,7 +133,7 @@ public class ShooterSubSystem extends SubsystemBase {
         }
         else
             m_setPoint_Left_Speed = desiredRotationsPerSecond;
-            m_setPoint_Right_Speed = desiredRotationsPerSecond + m_rightOffset_Speed;
+            m_setPoint_Right_Speed = -desiredRotationsPerSecond + m_rightOffset_Speed;
 
             System.out.println("shooter present mode: " + m_presentMode.toString());
             switch(m_presentMode){

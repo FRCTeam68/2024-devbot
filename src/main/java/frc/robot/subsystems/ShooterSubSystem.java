@@ -6,6 +6,7 @@ import com.ctre.phoenix6.controls.CoastOut;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -25,6 +26,7 @@ public class ShooterSubSystem extends SubsystemBase {
     }
 
     public enum Mode{
+        VOLTAGE_OUT,
         VOLTAGE_FOC,
         CURRENTTORQUE_FOC
     }
@@ -37,13 +39,17 @@ public class ShooterSubSystem extends SubsystemBase {
     private double m_rightOffset_Speed;
     private TalonFX m_shooterLeftMotor;
     private TalonFX m_shooterRightMotor;
+    private VoltageOut m_voltageOut;
     private VelocityVoltage m_voltageVelocity;
     private VelocityTorqueCurrentFOC m_torqueVelocity;
     private NeutralOut m_neutral;
+    private double m_setPoint_Left_Voltage;
+    private double m_setPoint_Right_Voltage;
+    private double m_rightOffset_Voltage;
 
     public ShooterSubSystem(){
         m_presentState = State.IDLE;
-        m_presentMode = Mode.VOLTAGE_FOC;
+        m_presentMode = Mode.VOLTAGE_OUT;
         m_setPoint_Left_Speed = 0;
         m_setPoint_Right_Speed = 0;
         m_spinUp_Speed = Constants.SHOOTER.SPEED;
@@ -58,6 +64,8 @@ public class ShooterSubSystem extends SubsystemBase {
 
         m_shooterLeftMotor.setInverted(true);
         m_shooterRightMotor.setInverted(false);
+
+        m_voltageOut = new VoltageOut(0);
 
           /* Start at velocity 0, enable FOC, no feed forward, use slot 0 */
         m_voltageVelocity = new VelocityVoltage(0, 0, true, 0, 0, 
@@ -81,8 +89,8 @@ public class ShooterSubSystem extends SubsystemBase {
         configs.Slot0.kD = 0.0001; // A change of 1 rotation per second squared results in 0.01 volts output
         configs.Slot0.kV = 0.12; // Falcon 500 is a 500kV motor, 500rpm per V = 8.333 rps per V, 1/8.33 = 0.12 volts / Rotation per second
         // Peak output of 8 volts
-        configs.Voltage.PeakForwardVoltage = 11;
-        configs.Voltage.PeakReverseVoltage = -11;
+        configs.Voltage.PeakForwardVoltage = 12;
+        configs.Voltage.PeakReverseVoltage = -12;
         
         /* Torque-based velocity does not require a feed forward, as torque will accelerate the rotor up to the desired velocity by itself */
         configs.Slot1.kP = 5; // An error of 1 rotation per second results in 5 amps output
@@ -122,6 +130,25 @@ public class ShooterSubSystem extends SubsystemBase {
         m_rightOffset_Speed=desiredSpeed;
     }
 
+    public void setSpeedVout(double desiredVoltage){
+        
+        if(m_presentMode == Mode.VOLTAGE_OUT){
+            if (Math.abs(desiredVoltage) <= .1) { // Joystick deadzone
+                m_setPoint_Left_Voltage = 0;
+                m_setPoint_Right_Voltage = 0;
+            }
+            else {
+                m_setPoint_Left_Speed = desiredVoltage;
+                m_setPoint_Right_Speed = -desiredVoltage + m_rightOffset_Voltage;
+            }
+            System.out.println("shooter setSpeedVout, L: " + m_setPoint_Left_Voltage 
+                                                + " , R: " + m_setPoint_Right_Voltage);
+            m_shooterLeftMotor.setControl(m_voltageOut.withOutput(m_setPoint_Left_Voltage));
+            m_shooterRightMotor.setControl(m_voltageOut.withOutput(m_setPoint_Right_Voltage));
+        }
+    }
+
+
     public void setSpeed(double desiredRotationsPerSecond){
 
         System.out.println("set desired speed: " + desiredRotationsPerSecond);
@@ -139,6 +166,9 @@ public class ShooterSubSystem extends SubsystemBase {
 
             System.out.println("shooter present mode: " + m_presentMode.toString());
             switch(m_presentMode){
+                case VOLTAGE_OUT:
+                    System.out.println("voltage out mode - use setSpeedVout instead");
+                    break;
                 default:
                 case VOLTAGE_FOC:
                     /* Use voltage velocity */

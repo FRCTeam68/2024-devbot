@@ -95,7 +95,16 @@ public class RobotContainer {
 
     m_ps4Controller.L1().onTrue(Commands.runOnce(()->m_Shooter.setState(ShooterSubSystem.State.IDLE)));
     m_ps4Controller.L2().onTrue(Commands.runOnce(()->m_Shooter.setState(ShooterSubSystem.State.SPINUP)));
-   
+
+    m_Intake.setDefaultCommand(Commands.run( () ->
+                m_Intake.setSpeedVout(m_ps4Controller.getLeftY() * 12), m_Intake));
+
+    m_Angle.setDefaultCommand(Commands.run( () ->
+                m_Angle.setPositionJoy(m_ps4Controller.getRightY() * 10), m_Angle));
+
+    // m_Shooter.setDefaultCommand(Commands.run( () ->
+    //             m_Shooter.setSpeedVout(m_ps4Controller.getRightY() * 12), m_Shooter));
+    
     // m_NoteSensorTrigger.onTrue(Commands.run(()->m_LED.setShooter(true)))
     //                    .onFalse(Commands.run(()->m_LED.setShooter(false)));
 

@@ -5,6 +5,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -26,6 +27,7 @@ public class IntakeSubSystem extends SubsystemBase {
     }
 
     public enum Mode{
+        VOLTAGE_OUT,
         VOLTAGE_FOC,
         CURRENTTORQUE_FOC
     }
@@ -36,19 +38,23 @@ public class IntakeSubSystem extends SubsystemBase {
     private double m_takeNote_Speed;
     private double m_spitNote_Speed;
     private TalonFX m_intakeMotor;
+    private VoltageOut m_voltageOut;
     private VelocityVoltage m_voltageVelocity;
     private VelocityTorqueCurrentFOC m_torqueVelocity;
     private NeutralOut m_brake;
+    private double m_setPoint_Voltage;
 
     public IntakeSubSystem(){
         m_presentState = State.IDLE;
-        m_presentMode = Mode.VOLTAGE_FOC;
+        m_presentMode = Mode.VOLTAGE_OUT;
         m_setPoint_Speed = 0;
         m_takeNote_Speed = -20;
         m_spitNote_Speed = 10;
 
         m_intakeMotor = new TalonFX(Constants.INTAKE.CANID);
         // m_intakeMotor = new TalonFX(Constants.INTAKE.CANID, "MANIPbus");
+
+        m_voltageOut = new VoltageOut(0);
 
           /* Start at velocity 0, enable FOC, no feed forward, use slot 0 */
         m_voltageVelocity = new VelocityVoltage(0, 0, true, 0, 0, 
@@ -70,8 +76,8 @@ public class IntakeSubSystem extends SubsystemBase {
         configs.Slot0.kD = 0.0001; // A change of 1 rotation per second squared results in 0.01 volts output
         configs.Slot0.kV = 0.12; // Falcon 500 is a 500kV motor, 500rpm per V = 8.333 rps per V, 1/8.33 = 0.12 volts / Rotation per second
         // Peak output of 8 volts
-        configs.Voltage.PeakForwardVoltage = 8;
-        configs.Voltage.PeakReverseVoltage = -8;
+        configs.Voltage.PeakForwardVoltage = 12;
+        configs.Voltage.PeakReverseVoltage = -12;
         
         /* Torque-based velocity does not require a feed forward, as torque will accelerate the rotor up to the desired velocity by itself */
         configs.Slot1.kP = 5; // An error of 1 rotation per second results in 5 amps output
@@ -101,6 +107,19 @@ public class IntakeSubSystem extends SubsystemBase {
         m_spitNote_Speed=desiredSpeed;
     }
 
+    public void setSpeedVout(double desiredVoltage){
+        if(m_presentMode == Mode.VOLTAGE_OUT){
+            if (Math.abs(desiredVoltage) <= .1) { // Joystick deadzone
+                m_setPoint_Voltage = 0;
+            }
+            else {
+                m_setPoint_Voltage = desiredVoltage;
+            }
+            System.out.println("intake setSpeedVout: " + m_setPoint_Voltage);
+            m_intakeMotor.setControl(m_voltageOut.withOutput(m_setPoint_Voltage));
+        }
+    }
+
     public void setSpeed(double desiredRotationsPerSecond){
 
         System.out.println("set intake desired speed: " + desiredRotationsPerSecond);
@@ -117,6 +136,9 @@ public class IntakeSubSystem extends SubsystemBase {
 
             System.out.println("intake present mode: " + m_presentMode.toString());
             switch(m_presentMode){
+                case VOLTAGE_OUT:
+                    System.out.println("voltage out mode - use setSpeedVout instead");
+                    break;
                 default:
                 case VOLTAGE_FOC:
                     /* Use voltage velocity */
@@ -212,7 +234,6 @@ public class IntakeSubSystem extends SubsystemBase {
         System.out.println("set state command" + wantedState.toString());
 
         switch(wantedState){
-
             case TAKE_NOTE:   // circle
                 desiredSpeed = m_takeNote_Speed;
                 break;

@@ -98,8 +98,8 @@ public class ShooterSubSystem extends SubsystemBase {
         configs.Slot1.kD = 0.001; // A change of 1000 rotation per second squared results in 1 amp output
     
         // Peak output of 40 amps
-        configs.TorqueCurrent.PeakForwardTorqueCurrent = 40;
-        configs.TorqueCurrent.PeakReverseTorqueCurrent = -40;
+        // configs.TorqueCurrent.PeakForwardTorqueCurrent = 40;
+        // configs.TorqueCurrent.PeakReverseTorqueCurrent = -40;
         configs.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
         /* Retry config apply up to 5 times, report if failure */
@@ -131,15 +131,16 @@ public class ShooterSubSystem extends SubsystemBase {
     }
 
     public void setSpeedVout(double desiredVoltage){
-        
+        // System.out.println("shooter setSpeedesired" + desiredVoltage);
         if(m_presentMode == Mode.VOLTAGE_OUT){
             if (Math.abs(desiredVoltage) <= .1) { // Joystick deadzone
+                // System.out.println("set zeros");
                 m_setPoint_Left_Voltage = 0;
                 m_setPoint_Right_Voltage = 0;
             }
             else {
-                m_setPoint_Left_Speed = desiredVoltage;
-                m_setPoint_Right_Speed = -desiredVoltage + m_rightOffset_Voltage;
+                m_setPoint_Left_Voltage = desiredVoltage;
+                m_setPoint_Right_Voltage = -desiredVoltage + m_rightOffset_Voltage;
             }
             System.out.println("shooter setSpeedVout, L: " + m_setPoint_Left_Voltage 
                                                 + " , R: " + m_setPoint_Right_Voltage);

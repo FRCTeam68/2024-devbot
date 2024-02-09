@@ -53,6 +53,8 @@ public class RobotContainer {
   DigitalInput m_noteSensor2 = new DigitalInput(1);
   DigitalInput m_noteSensor3 = new DigitalInput(2);
   Trigger m_NoteSensorTrigger1 = new Trigger(m_noteSensor1::get);
+  Trigger m_NoteSensorTrigger2 = new Trigger(m_noteSensor2::get);
+  Trigger m_NoteSensorTrigger3 = new Trigger(m_noteSensor3::get);
 
   public RobotContainer() {
     configureBindings();
@@ -62,6 +64,10 @@ public class RobotContainer {
     Shuffleboard.getTab("IntakeSubsystem").add(m_Intake);
     Shuffleboard.getTab("ShooterSubystem").add(m_Shooter);
     Shuffleboard.getTab("AngleSubsystem").add(m_Angle);
+
+    SmartDashboard.putBoolean("NoteSensor1", false);
+    SmartDashboard.putBoolean("NoteSensor2", false);
+    SmartDashboard.putBoolean("NoteSensor3", false);
 
   }
 
@@ -111,11 +117,18 @@ public class RobotContainer {
     // m_NoteSensorTrigger1.onTrue(Commands.run(()->m_LED.setShooter(true)))
     //                    .onFalse(Commands.run(()->m_LED.setShooter(false)));
 
-    // m_NoteSensorTrigger1.onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.TAKE_NOTE))
-    //                                     .andThen(()->SmartDashboard.putBoolean("NoteSensor1", true)))
-    //                    .onFalse(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.IDLE))
-    //                                     .andThen(()->SmartDashboard.putBoolean("NoteSensor1", false)));
+    m_NoteSensorTrigger1.onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.TAKE_NOTE))
+                                        .andThen(()->SmartDashboard.putBoolean("NoteSensor1", true)))
+                       .onFalse(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.IDLE))
+                                        .andThen(()->SmartDashboard.putBoolean("NoteSensor1", false)));
 
+    m_NoteSensorTrigger2.onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.SPIT_NOTE))
+                                        .andThen(()->SmartDashboard.putBoolean("NoteSensor2", true)))
+                       .onFalse(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.IDLE))
+                                        .andThen(()->SmartDashboard.putBoolean("NoteSensor2", false)));
+
+    m_NoteSensorTrigger3.onTrue(Commands.runOnce(()->SmartDashboard.putBoolean("NoteSensor3", true)))
+                       .onFalse(Commands.runOnce(()->SmartDashboard.putBoolean("NoteSensor3", false)));
   }
 
 

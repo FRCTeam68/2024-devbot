@@ -26,13 +26,19 @@ public final class Constants {
         public static final double SPEED = 1.0;
     }
 
+    public static final class SHOOTER {
+        public static final int LEFT_CANID = 30;
+        public static final int RIGHT_CANID = 31;
+        public static final double SPEED = 20;
+        public static final double RIGHT_OFFSET = 0;
+    }
+
     public static final class ANGLE {
         public static final int CANID = 32;
-
         public static final double SPEAKER = 0;
         public static final double AMP = 20;
         public static final double TRAP = 30;
-        public static final double FEED = 5;
+        public static final double FEED = -5;
         public static final double VISION = 0;
     }
 

@@ -103,6 +103,19 @@ public class AngleSubSystem extends SubsystemBase {
         //NOPE, magnet offset did not work.   go back to set rotor to zero.
     }
 
+    public void setPositionJoy(double desiredPosition){
+        switch(m_presentMode){
+            default:
+            case MMV:
+                System.out.println("angle setPositionJoy: " + desiredPosition);
+                m_angleMotor.setControl(m_angleMotorMMV.withPosition(desiredPosition));
+                break;
+            case MMV_FOC:
+                //TBD
+                break;
+        }
+    }
+
     public void setPosition(double desiredPosition){
 
         System.out.println("set angle desired position: " + desiredPosition);

@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import frc.robot.subsystems.AngleSubSystem;
+import frc.robot.subsystems.ClimberSubSystem;
 // import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 // import frc.robot.generated.TunerConstants;
@@ -48,6 +49,7 @@ public class RobotContainer {
   IntakeSubSystem m_Intake = new IntakeSubSystem();
   ShooterSubSystem m_Shooter = new ShooterSubSystem();
   AngleSubSystem m_Angle = new AngleSubSystem();
+  ClimberSubSystem m_Climber = new ClimberSubSystem();
   // LEDSubsystem m_LED = new LEDSubsystem();
   DigitalInput m_noteSensor1 = new DigitalInput(0);
   DigitalInput m_noteSensor2 = new DigitalInput(1);
@@ -64,6 +66,7 @@ public class RobotContainer {
     Shuffleboard.getTab("IntakeSubsystem").add(m_Intake);
     Shuffleboard.getTab("ShooterSubystem").add(m_Shooter);
     Shuffleboard.getTab("AngleSubsystem").add(m_Angle);
+    Shuffleboard.getTab("ClimberSubSystem").add(m_Climber);
 
     SmartDashboard.putBoolean("NoteSensor1", false);
     SmartDashboard.putBoolean("NoteSensor2", false);
@@ -111,8 +114,12 @@ public class RobotContainer {
     // m_Angle.setDefaultCommand(Commands.run( () ->
     //             m_Angle.setPositionJoy(m_ps4Controller.getRightY() * 10), m_Angle));
 
-    m_Shooter.setDefaultCommand(Commands.run( () ->
-                m_Shooter.setSpeedVout(m_ps4Controller.getRightY() * 12), m_Shooter));
+    // m_Shooter.setDefaultCommand(Commands.run( () ->
+    //             m_Shooter.setSpeedVout(m_ps4Controller.getRightY() * 12), m_Shooter));
+
+    m_Climber.setDefaultCommand(Commands.run( () ->
+                m_Climber.setSpeedVout(-m_ps4Controller.getLeftY() * 12,
+                                       m_ps4Controller.getRightY() * 12), m_Climber));
     
     // m_NoteSensorTrigger1.onTrue(Commands.run(()->m_LED.setShooter(true)))
     //                    .onFalse(Commands.run(()->m_LED.setShooter(false)));

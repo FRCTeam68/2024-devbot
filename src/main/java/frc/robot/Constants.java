@@ -42,15 +42,11 @@ public final class Constants {
         public static final double VISION = 0;
     }
 
-    // public static final class CLIMB {
-    //     public static final int CANID = 8;
-
-    //     public static final double P = 0.01;
-    //     public static final double TOLERANCE = 0.01;
-
-    //     public static final int ARMSFWD = 4;
-    //     public static final int ARMSREV = 5;
-    // }
+    public static final class CLIMBER {
+        public static final int LEFT_CANID = 40;
+        public static final int RIGHT_CANID = 41;
+        public static final double MAX_HEIGHT = 12;   //inches
+    }
 
     // public static final class CAMERA {
     //     public static final double BALLCAMERAANGLE = 0; // Degrees

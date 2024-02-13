@@ -34,7 +34,8 @@ public final class Constants {
     }
 
     public static final class ANGLE {
-        public static final int CANID = 32;
+        public static final int LEFT_CANID = 32;
+        public static final int RIGHT_CANID = 33;
         public static final double SPEAKER = 0;
         public static final double AMP = 20;
         public static final double TRAP = 30;
@@ -45,7 +46,7 @@ public final class Constants {
     public static final class CLIMBER {
         public static final int LEFT_CANID = 40;
         public static final int RIGHT_CANID = 41;
-        public static final double MAX_HEIGHT = 12;   //inches
+        public static final double MAX_HEIGHT = 9;   //inches
     }
 
     // public static final class CAMERA {

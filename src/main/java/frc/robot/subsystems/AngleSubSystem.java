@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
@@ -42,7 +43,8 @@ public class AngleSubSystem extends SubsystemBase {
     private double m_trap_position;
     private double m_feed_position;
 
-    private TalonFX m_angleMotor;
+    private TalonFX m_angleLeftMotor;
+    private TalonFX m_angleRightMotor;
     private MotionMagicVoltage m_angleMotorMMV;
     private NeutralOut m_brake;
 
@@ -58,7 +60,8 @@ public class AngleSubSystem extends SubsystemBase {
     }
 
     private void angleMotorInit(){
-        m_angleMotor = new TalonFX(Constants.ANGLE.CANID);
+        m_angleLeftMotor = new TalonFX(Constants.ANGLE.LEFT_CANID);
+        m_angleRightMotor = new TalonFX(Constants.ANGLE.RIGHT_CANID);
         m_angleMotorMMV = new MotionMagicVoltage(Constants.ANGLE.SPEAKER);  
 
         TalonFXConfiguration cfg = new TalonFXConfiguration();
@@ -67,7 +70,8 @@ public class AngleSubSystem extends SubsystemBase {
         cfg.MotionMagic.MotionMagicAcceleration = 100; // Take approximately 0.5 seconds to reach max vel
         cfg.MotionMagic.MotionMagicJerk = 700;   
 
-		m_angleMotor.setInverted(true);
+		m_angleLeftMotor.setInverted(true);
+        m_angleRightMotor.setControl(new Follower(Constants.ANGLE.LEFT_CANID, true));
         
         cfg.Slot0.kP = 55.0F;
         cfg.Slot0.kI = 0.0F;
@@ -80,7 +84,7 @@ public class AngleSubSystem extends SubsystemBase {
 
         StatusCode status = StatusCode.StatusCodeNotInitialized;
         for(int i = 0; i < 5; ++i) {
-          status = m_angleMotor.getConfigurator().apply(cfg);
+          status = m_angleLeftMotor.getConfigurator().apply(cfg);
           if (status.isOK()) break;
         }
         if (!status.isOK()) {
@@ -88,7 +92,7 @@ public class AngleSubSystem extends SubsystemBase {
         }
 
         m_angleMotorMMV.OverrideBrakeDurNeutral = true;
-        m_angleMotor.setVoltage(0);
+        m_angleLeftMotor.setVoltage(0);
         // m_angleMotor.setSafetyEnabled(false);
 
         zeroAngleSensor(); 
@@ -96,7 +100,7 @@ public class AngleSubSystem extends SubsystemBase {
 
     public void zeroAngleSensor(){
         // m_rotateMotor.setRotorPosition(0);  no setRotorPosition anymore.  does setPosition do the same thing???
-        m_angleMotor.setPosition(0);
+        m_angleLeftMotor.setPosition(0);
         //move arm to speaker '0' position
         //  No need to zero.   absolute CAN coder position will be used.
         //  so if it starts off zero, it will go to zero upon going to Nuetral state 
@@ -108,7 +112,7 @@ public class AngleSubSystem extends SubsystemBase {
             default:
             case MMV:
                 System.out.println("angle setPositionJoy: " + desiredPosition);
-                m_angleMotor.setControl(m_angleMotorMMV.withPosition(desiredPosition));
+                m_angleLeftMotor.setControl(m_angleMotorMMV.withPosition(desiredPosition));
                 break;
             case MMV_FOC:
                 //TBD
@@ -127,7 +131,7 @@ public class AngleSubSystem extends SubsystemBase {
             default:
             case MMV:
                 System.out.println("call motor MMV ");
-                m_angleMotor.setControl(m_angleMotorMMV.withPosition(m_setPoint_Position));
+                m_angleLeftMotor.setControl(m_angleMotorMMV.withPosition(m_setPoint_Position));
                 break;
     
             case MMV_FOC:

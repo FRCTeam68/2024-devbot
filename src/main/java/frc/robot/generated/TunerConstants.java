@@ -9,6 +9,7 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants.SteerFeedbackTy
 
 import edu.wpi.first.math.util.Units;
 import frc.robot.CommandSwerveDrivetrain;
+import frc.robot.Constants;
 
 public class TunerConstants {
     // Both sets of gains need to be tuned to your individual robot.
@@ -89,7 +90,9 @@ public class TunerConstants {
     private static final int kFrontLeftDriveMotorId = 1;
     private static final int kFrontLeftSteerMotorId = 2;
     private static final int kFrontLeftEncoderId = 15;
-    private static final double kFrontLeftEncoderOffset = 0.195556640625;
+//     if (ROBOT.selected == ROBOT.chassisbot) {
+        private static final double kFrontLeftEncoderOffset = 0.195556640625;
+//     } 
 
     private static final double kFrontLeftXPosInches = 11.25;
     private static final double kFrontLeftYPosInches = 8.75;

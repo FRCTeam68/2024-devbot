@@ -21,12 +21,14 @@ public class LEDSubsystem extends SubsystemBase {
 
   public LEDSubsystem() {
     m_led.setLength(m_ledBuffer.getLength());
+    System.out.println("getlength:"+ m_ledBuffer.getLength());
     m_led.setData(m_ledBuffer);
     m_led.start();
   }
 
   @Override
   public void periodic() {
+
     if (DriverStation.isEnabled()) {
       Optional<Alliance> ally = DriverStation.getAlliance();
       if (ally.equals(Alliance.Red)) {
@@ -45,11 +47,12 @@ public class LEDSubsystem extends SubsystemBase {
   public void simulationPeriodic() {}
 
   public void setShooter(boolean ready){
+    
     shooter=ready;
   }
 
   private void setLEDs() {
-    setBallLEDs();
+    // setBallLEDs();
     setShooterLEDs();
     m_led.setData(m_ledBuffer);
   }
@@ -72,11 +75,14 @@ public class LEDSubsystem extends SubsystemBase {
   }
 
   private void setShooterLEDs() {
+    // System.out.println("shooterLEDs");
     if (shooter) {
-      setBackAll(Color.kGreen);
+      // setBackAll(Color.kGreen);
+      m_ledBuffer.setLED(1, Color.kGreen);
     }
     else {
-      setBackAll(Color.kBlack); // Off
+      // setBackAll(Color.kBlack); // Off
+      m_ledBuffer.setLED(1, Color.kBlack);
     }
   }
 
@@ -98,7 +104,9 @@ public class LEDSubsystem extends SubsystemBase {
   }
 
   public void setBackAll(Color color) {
+    System.out.println("setBackAll:"+ color);
     for (var i = m_ledBuffer.getLength() / 2; i < m_ledBuffer.getLength(); i++) {
+      System.out.println("setBackAll:"+ i+ ", color: " + color);
       m_ledBuffer.setLED(i, color);
     }
   }

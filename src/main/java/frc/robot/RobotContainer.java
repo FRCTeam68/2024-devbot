@@ -26,7 +26,7 @@ import frc.robot.subsystems.ClimberSubSystem;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 // import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.IntakeSubSystem;
-// import frc.robot.subsystems.LEDSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.ShooterSubSystem;
 
 public class RobotContainer {
@@ -96,9 +96,9 @@ public class RobotContainer {
 
     System.out.println("config bindings");
 
-    m_ps4Controller.circle().onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.TAKE_NOTE)));
-    m_ps4Controller.square().onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.SPIT_NOTE)));
-    m_ps4Controller.cross().onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.IDLE)));
+    // m_ps4Controller.circle().onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.TAKE_NOTE)));
+    // m_ps4Controller.square().onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.SPIT_NOTE)));
+    // m_ps4Controller.cross().onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.IDLE)));
 
     m_ps4Controller.povUp().onTrue(Commands.runOnce(()->m_Angle.setState(AngleSubSystem.State.SPEAKER)));
     m_ps4Controller.povLeft().onTrue(Commands.runOnce(()->m_Angle.setState(AngleSubSystem.State.AMP)));
@@ -121,6 +121,9 @@ public class RobotContainer {
                 m_Climber.setSpeedVout(-m_ps4Controller.getLeftY() * 12,
                                        m_ps4Controller.getRightY() * 12), m_Climber));
     
+    // m_ps4Controller.circle().onTrue(Commands.runOnce(()->m_LED.setShooter(true)));
+    // m_ps4Controller.square().onTrue(Commands.runOnce(()->m_LED.setShooter(false)));
+
     // m_NoteSensorTrigger1.onTrue(Commands.run(()->m_LED.setShooter(true)))
     //                    .onFalse(Commands.run(()->m_LED.setShooter(false)));
 
@@ -142,4 +145,5 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");
   }
+
 }

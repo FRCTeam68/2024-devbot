@@ -16,9 +16,16 @@ package frc.robot;
  */
 public final class Constants {
 
+    // public static final class ROBOT {
+    //     public static final int season = 0;
+    //     public static final int devot = 1;
+    //     public static final int chassisbot = 2;
+    //     public static final int selected = season;
+    // }
+
     public static final class LED {
         public static final int PWMPORT = 0;
-        public static final int BUFFERSIZE = 120;
+        public static final int BUFFERSIZE = 8;
     }
     
     public static final class INTAKE {

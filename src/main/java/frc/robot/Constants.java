@@ -21,15 +21,33 @@ public final class Constants {
         public static final int BUFFERSIZE = 120;
     }
     
+    public static final class ROLLER {
+        public static final double MAXSPEED = 100;
+        public static final double MAXVOLTAGE = 12;
+    }
+
     public static final class INTAKE {
         public static final int CANID = 20;
-        public static final double SPEED = 1.0;
+        public static final double TAKE_NOTE_SPEED = -40;
+        public static final double SPIT_NOTE_SPEED = 30;
+    }
+
+    public static final class FEEDER1 {
+        public static final int CANID = 34;
+        public static final double TAKE_NOTE_SPEED = -30;
+        public static final double SPIT_NOTE_SPEED = 40;
+    }
+
+        public static final class FEEDER2 {
+        public static final int CANID = 35;
+        public static final double TAKE_NOTE_SPEED = -20;
+        public static final double SHOOT_SPEED = 60;
     }
 
     public static final class SHOOTER {
         public static final int LEFT_CANID = 30;
         public static final int RIGHT_CANID = 31;
-        public static final double SPEED = 20;
+        public static final double SHOOT_SPEED = 80;
         public static final double RIGHT_OFFSET = 0;
     }
 

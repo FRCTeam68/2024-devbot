@@ -24,7 +24,9 @@ public class AngleSubSystem extends SubsystemBase {
         SPEAKER,
         AMP,
         TRAP,
-        FEED
+        INTAKE,
+        FEEDSTATION,
+        SPEAKER_PODIUM
     }
 
     public enum Mode{
@@ -136,6 +138,12 @@ public class AngleSubSystem extends SubsystemBase {
         }
     }
 
+    public boolean atAngle(){
+        double motorPosition = m_angleMotor.getPosition().getValueAsDouble();
+        return Math.abs(m_setPoint_Position-motorPosition) < 1.0;
+    }
+
+
     public void setSpeakerPosition(double desiredPosition) {
         m_speaker_position = desiredPosition;
 	}
@@ -199,7 +207,7 @@ public class AngleSubSystem extends SubsystemBase {
             case TRAP:
                 desiredPosition = m_trap_position;
                 break;
-            case FEED:
+            case FEEDSTATION:
                 desiredPosition = m_feed_position;
                 break;
         }

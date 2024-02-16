@@ -52,7 +52,6 @@ public class ShooterSubSystem extends SubsystemBase {
         m_presentMode = Mode.VOLTAGE_OUT;
         m_setPoint_Left_Speed = 0;
         m_setPoint_Right_Speed = 0;
-        m_spinUp_Speed = Constants.SHOOTER.SPEED;
         m_rightOffset_Speed = Constants.SHOOTER.RIGHT_OFFSET;
 
         shooterMotorsInit();
@@ -188,6 +187,11 @@ public class ShooterSubSystem extends SubsystemBase {
                     m_shooterRightMotor.setControl(m_torqueVelocity.withVelocity(m_setPoint_Right_Speed).withFeedForward(friction_torque));
                     break;
             }
+    }
+
+    public boolean atSpeed(){
+        double motorSpeed = m_shooterLeftMotor.getVelocity().getValueAsDouble();
+        return Math.abs(m_setPoint_Left_Speed-motorSpeed) < 5.0;
     }
 
     public double getSpinUpSpeed(){

@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -24,7 +25,8 @@ public class NoteSubSystem extends SubsystemBase {
         INTAKING_NOTE1,
         HAVE_NOTE1,
         INTAKING_NOTE2,
-        HAVE_NOTE2
+        HAVE_NOTE2,
+        SHOOTING
     }
 
     public enum Target{
@@ -54,6 +56,7 @@ public class NoteSubSystem extends SubsystemBase {
     private RollerSubSystem m_Feeder2;
     private ShooterSubSystem m_Shooter;
     private AngleSubSystem m_Angle;
+    private Timer m_shootRunTime;
 
     public NoteSubSystem(){
         m_presentState = State.EMPTY;
@@ -132,6 +135,7 @@ public class NoteSubSystem extends SubsystemBase {
                         m_Feeder1.setSpeed(Constants.FEEDER1.TAKE_NOTE_SPEED);
                         m_Feeder2.setSpeed(Constants.FEEDER2.TAKE_NOTE_SPEED);
                         m_presentState = State.INTAKING_NOTE1;
+                        m_wantedAction = ActionRequest.IDLE;
                     }
                 }
 
@@ -142,6 +146,7 @@ public class NoteSubSystem extends SubsystemBase {
                     m_Feeder1.setSpeed(0);
                     m_Feeder2.setSpeed(0);
                     m_presentState = State.HAVE_NOTE1;
+                    m_wantedAction = ActionRequest.IDLE;
                 }
                 break;
             case BEAM1:
@@ -158,8 +163,17 @@ public class NoteSubSystem extends SubsystemBase {
                     m_Shooter.setSpeed(Constants.SHOOTER.SHOOT_SPEED);
                     if (m_Angle.atAngle() && m_Shooter.atSpeed()){
                         m_Feeder2.setSpeed(Constants.FEEDER2.SHOOT_SPEED);
-                        m_presentState = State.EMPTY;
+                        m_shootRunTime.start();
+                        m_presentState = State.SHOOTING;
                     }
+                else if (m_presentState == State.SHOOTING){
+                    if (m_shootRunTime.hasElapsed(2)){
+                        m_Shooter.setSpeed(0);
+                        m_Feeder2.setSpeed(0);
+                        m_presentState = State.EMPTY;
+                        m_wantedAction = ActionRequest.IDLE;
+                    }
+                }
                 }
                 break;
         }

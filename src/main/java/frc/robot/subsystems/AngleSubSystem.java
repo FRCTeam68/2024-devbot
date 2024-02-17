@@ -9,6 +9,7 @@ import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -63,8 +64,10 @@ public class AngleSubSystem extends SubsystemBase {
     }
 
     private void angleMotorInit(){
-        m_angleLeftMotor = new TalonFX(Constants.ANGLE.LEFT_CANID);
-        m_angleRightMotor = new TalonFX(Constants.ANGLE.RIGHT_CANID);
+        m_angleLeftMotor = new TalonFX(Constants.ANGLE.LEFT_CANID, "rio");
+        m_angleRightMotor = new TalonFX(Constants.ANGLE.RIGHT_CANID, "rio");
+        m_angleRightMotor.setControl(new Follower(Constants.ANGLE.LEFT_CANID, true));
+
         m_angleMotorMMV = new MotionMagicVoltage(Constants.ANGLE.SPEAKER);  
 
         TalonFXConfiguration cfg = new TalonFXConfiguration();
@@ -73,8 +76,8 @@ public class AngleSubSystem extends SubsystemBase {
         cfg.MotionMagic.MotionMagicAcceleration = 100; // Take approximately 0.5 seconds to reach max vel
         cfg.MotionMagic.MotionMagicJerk = 700;   
 
-		m_angleLeftMotor.setInverted(true);
-        m_angleRightMotor.setControl(new Follower(Constants.ANGLE.LEFT_CANID, true));
+        cfg.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+		// m_angleLeftMotor.setInverted(true);
         
         cfg.Slot0.kP = 55.0F;
         cfg.Slot0.kI = 0.0F;
@@ -112,8 +115,8 @@ public class AngleSubSystem extends SubsystemBase {
 
     public void setPositionJoy(double desiredAjustPosition){
         if (Math.abs(desiredAjustPosition)>0.5){
-            m_setPoint_Adjust = m_setPoint_Adjust + desiredAjustPosition;
-            System.out.println("set angle desired position: " + m_setPoint_Position + ", plus: " +m_setPoint_Adjust);
+            m_setPoint_Adjust = m_setPoint_Adjust + 1;
+            System.out.println("set angle desired position: " + m_setPoint_Position + ", plus: " + m_setPoint_Adjust);
             setPosition(m_setPoint_Position + m_setPoint_Adjust);
         }
 

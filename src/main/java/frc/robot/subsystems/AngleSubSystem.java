@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import javax.management.timer.Timer;
+
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
@@ -49,6 +51,7 @@ public class AngleSubSystem extends SubsystemBase {
     private TalonFX m_angleRightMotor;
     private MotionMagicVoltage m_angleMotorMMV;
     private NeutralOut m_brake;
+    private Timer m_bumpTimer;
 
     public AngleSubSystem(){
         m_presentState = State.SPEAKER;
@@ -59,6 +62,8 @@ public class AngleSubSystem extends SubsystemBase {
         m_intake_position = Constants.ANGLE.INTAKE;
         m_setPoint_Position = Constants.ANGLE.SPEAKER;
         m_setPoint_Adjust = 0;
+
+        m_bumpTimer.start();
 
         angleMotorInit();
     }
@@ -115,11 +120,10 @@ public class AngleSubSystem extends SubsystemBase {
 
     public void setPositionJoy(double desiredAjustPosition){
         if (Math.abs(desiredAjustPosition)>0.5){
-            m_setPoint_Adjust = m_setPoint_Adjust + Constants.ANGLE.BUMP_VALUE;
+            m_setPoint_Adjust = m_setPoint_Adjust + desiredAjustPosition*Constants.ANGLE.BUMP_VALUE;
             System.out.println("set angle desired position: " + m_setPoint_Position + ", plus: " + m_setPoint_Adjust);
             setPosition(m_setPoint_Position + m_setPoint_Adjust);
         }
-
 
         // switch(m_presentMode){
         //     default:

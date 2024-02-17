@@ -37,9 +37,11 @@ public final class Constants {
         public static final int LEFT_CANID = 32;
         public static final int RIGHT_CANID = 33;
         public static final double SPEAKER = 0;
-        public static final double AMP = 2;
-        public static final double TRAP = 4;
-        public static final double INTAKE = -2;
+        //positive value makes shooter side go up
+        //negative value makes shooter side go down
+        public static final double AMP = -6;
+        public static final double TRAP = -4;
+        public static final double INTAKE = 2;
         public static final double BUMP_VALUE = 1;
         // public static final double VISION = 0;
     }

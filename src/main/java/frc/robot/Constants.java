@@ -16,6 +16,18 @@ package frc.robot;
  */
 public final class Constants {
 
+    private static RobotType robotType = RobotType.DEVBOT;
+
+    public enum RobotType {
+        CHASSISBOT,
+        DEVBOT,
+        COMPBOT
+    }
+
+    public static RobotType getRobot() {
+    return robotType;
+  }
+
     public static final class LED {
         public static final int PWMPORT = 0;
         public static final int BUFFERSIZE = 120;

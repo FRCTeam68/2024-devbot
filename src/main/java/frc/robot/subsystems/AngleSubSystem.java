@@ -115,7 +115,7 @@ public class AngleSubSystem extends SubsystemBase {
 
     public void setPositionJoy(double desiredAjustPosition){
         if (Math.abs(desiredAjustPosition)>0.5){
-            m_setPoint_Adjust = m_setPoint_Adjust + 1;
+            m_setPoint_Adjust = m_setPoint_Adjust + Constants.ANGLE.BUMP_VALUE;
             System.out.println("set angle desired position: " + m_setPoint_Position + ", plus: " + m_setPoint_Adjust);
             setPosition(m_setPoint_Position + m_setPoint_Adjust);
         }
@@ -220,6 +220,7 @@ public class AngleSubSystem extends SubsystemBase {
                 desiredPosition = m_intake_position;
                 break;
         }
+        m_setPoint_Adjust = 0;
 
         setPosition(desiredPosition);    
 	}

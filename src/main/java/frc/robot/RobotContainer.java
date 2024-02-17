@@ -46,10 +46,10 @@ public class RobotContainer {
   // private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
   // private final Telemetry logger = new Telemetry(MaxSpeed);
 
-  IntakeSubSystem m_Intake = new IntakeSubSystem();
-  ShooterSubSystem m_Shooter = new ShooterSubSystem();
+  // IntakeSubSystem m_Intake = new IntakeSubSystem();
+  // ShooterSubSystem m_Shooter = new ShooterSubSystem();
   AngleSubSystem m_Angle = new AngleSubSystem();
-  ClimberSubSystem m_Climber = new ClimberSubSystem();
+  // ClimberSubSystem m_Climber = new ClimberSubSystem();
   // LEDSubsystem m_LED = new LEDSubsystem();
   DigitalInput m_noteSensor1 = new DigitalInput(0);
   DigitalInput m_noteSensor2 = new DigitalInput(1);
@@ -63,10 +63,10 @@ public class RobotContainer {
 
        // Put subsystems to dashboard.
     // Shuffleboard.getTab("Drivetrain").add(m_robotDrive);
-    Shuffleboard.getTab("IntakeSubsystem").add(m_Intake);
-    Shuffleboard.getTab("ShooterSubystem").add(m_Shooter);
+    // Shuffleboard.getTab("IntakeSubsystem").add(m_Intake);
+    // Shuffleboard.getTab("ShooterSubystem").add(m_Shooter);
     Shuffleboard.getTab("AngleSubsystem").add(m_Angle);
-    Shuffleboard.getTab("ClimberSubSystem").add(m_Climber);
+    // Shuffleboard.getTab("ClimberSubSystem").add(m_Climber);
 
     SmartDashboard.putBoolean("NoteSensor1", false);
     SmartDashboard.putBoolean("NoteSensor2", false);
@@ -105,8 +105,8 @@ public class RobotContainer {
     m_ps4Controller.square().onTrue(Commands.runOnce(()->m_Angle.setState(AngleSubSystem.State.TRAP)));
     m_ps4Controller.cross().onTrue(Commands.runOnce(()->m_Angle.setState(AngleSubSystem.State.INTAKE)));
 
-    m_ps4Controller.L1().onTrue(Commands.runOnce(()->m_Shooter.setState(ShooterSubSystem.State.IDLE)));
-    m_ps4Controller.L2().onTrue(Commands.runOnce(()->m_Shooter.setState(ShooterSubSystem.State.SPINUP)));
+    // m_ps4Controller.L1().onTrue(Commands.runOnce(()->m_Shooter.setState(ShooterSubSystem.State.IDLE)));
+    // m_ps4Controller.L2().onTrue(Commands.runOnce(()->m_Shooter.setState(ShooterSubSystem.State.SPINUP)));
 
     // m_Intake.setDefaultCommand(Commands.run( () ->
     //             m_Intake.setSpeedVout(m_ps4Controller.getLeftY() * 12), m_Intake));
@@ -124,16 +124,10 @@ public class RobotContainer {
     // m_NoteSensorTrigger1.onTrue(Commands.run(()->m_LED.setShooter(true)))
     //                    .onFalse(Commands.run(()->m_LED.setShooter(false)));
 
-    m_NoteSensorTrigger1.onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.TAKE_NOTE))
-                                        .andThen(()->SmartDashboard.putBoolean("NoteSensor1", true)))
-                       .onFalse(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.IDLE))
-                                        .andThen(()->SmartDashboard.putBoolean("NoteSensor1", false)));
-
-    m_NoteSensorTrigger2.onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.SPIT_NOTE))
-                                        .andThen(()->SmartDashboard.putBoolean("NoteSensor2", true)))
-                       .onFalse(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.IDLE))
-                                        .andThen(()->SmartDashboard.putBoolean("NoteSensor2", false)));
-
+    m_NoteSensorTrigger1.onTrue(Commands.runOnce(()->SmartDashboard.putBoolean("NoteSensor1", true)))
+                       .onFalse(Commands.runOnce(()->SmartDashboard.putBoolean("NoteSensor1", false)));
+    m_NoteSensorTrigger2.onTrue(Commands.runOnce(()->SmartDashboard.putBoolean("NoteSensor2", true)))
+                       .onFalse(Commands.runOnce(()->SmartDashboard.putBoolean("NoteSensor2", false)));
     m_NoteSensorTrigger3.onTrue(Commands.runOnce(()->SmartDashboard.putBoolean("NoteSensor3", true)))
                        .onFalse(Commands.runOnce(()->SmartDashboard.putBoolean("NoteSensor3", false)));
   }

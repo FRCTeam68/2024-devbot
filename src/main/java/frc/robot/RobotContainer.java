@@ -64,7 +64,7 @@ public class RobotContainer {
 
        // Put subsystems to dashboard.
     // Shuffleboard.getTab("Drivetrain").add(m_robotDrive);
-    Shuffleboard.getTab("ClimberSubSystem").add(m_Climber);
+    // Shuffleboard.getTab("ClimberSubSystem").add(m_Climber);
 
     SmartDashboard.putBoolean("NoteSensor1", false);
     SmartDashboard.putBoolean("NoteSensor2", false);
@@ -119,7 +119,7 @@ public class RobotContainer {
     // m_Shooter.setDefaultCommand(Commands.run( () ->
     //             m_Shooter.setSpeedVout(m_ps4Controller.getRightY() * 12), m_Shooter));
 
-    m_ps4Controller.touchpad().onTrue(Commands.runOnce(()->m_Climber.setState(State.CLIMB)));
+    // m_ps4Controller.touchpad().onTrue(Commands.runOnce(()->m_Climber.setState(State.CLIMB)));
 
     // m_Climber.setDefaultCommand(Commands.run( () ->
     //             m_Climber.setSpeedVout(-m_ps4Controller.getLeftY() * 12,

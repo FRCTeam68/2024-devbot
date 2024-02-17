@@ -96,14 +96,14 @@ public class RobotContainer {
 
     System.out.println("config bindings");
 
-    m_ps4Controller.circle().onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.TAKE_NOTE)));
-    m_ps4Controller.square().onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.SPIT_NOTE)));
-    m_ps4Controller.cross().onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.IDLE)));
+    // m_ps4Controller.circle().onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.TAKE_NOTE)));
+    // m_ps4Controller.square().onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.SPIT_NOTE)));
+    // m_ps4Controller.cross().onTrue(Commands.runOnce(()->m_Intake.setState(IntakeSubSystem.State.IDLE)));
 
-    m_ps4Controller.povUp().onTrue(Commands.runOnce(()->m_Angle.setState(AngleSubSystem.State.SPEAKER)));
-    m_ps4Controller.povLeft().onTrue(Commands.runOnce(()->m_Angle.setState(AngleSubSystem.State.AMP)));
-    m_ps4Controller.povRight().onTrue(Commands.runOnce(()->m_Angle.setState(AngleSubSystem.State.TRAP)));
-    m_ps4Controller.povDown().onTrue(Commands.runOnce(()->m_Angle.setState(AngleSubSystem.State.FEED)));
+    m_ps4Controller.triangle().onTrue(Commands.runOnce(()->m_Angle.setState(AngleSubSystem.State.SPEAKER)));
+    m_ps4Controller.circle().onTrue(Commands.runOnce(()->m_Angle.setState(AngleSubSystem.State.AMP)));
+    m_ps4Controller.square().onTrue(Commands.runOnce(()->m_Angle.setState(AngleSubSystem.State.TRAP)));
+    m_ps4Controller.cross().onTrue(Commands.runOnce(()->m_Angle.setState(AngleSubSystem.State.INTAKE)));
 
     m_ps4Controller.L1().onTrue(Commands.runOnce(()->m_Shooter.setState(ShooterSubSystem.State.IDLE)));
     m_ps4Controller.L2().onTrue(Commands.runOnce(()->m_Shooter.setState(ShooterSubSystem.State.SPINUP)));
@@ -111,15 +111,15 @@ public class RobotContainer {
     // m_Intake.setDefaultCommand(Commands.run( () ->
     //             m_Intake.setSpeedVout(m_ps4Controller.getLeftY() * 12), m_Intake));
 
-    // m_Angle.setDefaultCommand(Commands.run( () ->
-    //             m_Angle.setPositionJoy(m_ps4Controller.getRightY() * 10), m_Angle));
+    m_Angle.setDefaultCommand(Commands.run( () ->
+                m_Angle.setPositionJoy(m_ps4Controller.getRightY()), m_Angle));
 
     // m_Shooter.setDefaultCommand(Commands.run( () ->
     //             m_Shooter.setSpeedVout(m_ps4Controller.getRightY() * 12), m_Shooter));
 
-    m_Climber.setDefaultCommand(Commands.run( () ->
-                m_Climber.setSpeedVout(-m_ps4Controller.getLeftY() * 12,
-                                       m_ps4Controller.getRightY() * 12), m_Climber));
+    // m_Climber.setDefaultCommand(Commands.run( () ->
+    //             m_Climber.setSpeedVout(-m_ps4Controller.getLeftY() * 12,
+    //                                    m_ps4Controller.getRightY() * 12), m_Climber));
     
     // m_NoteSensorTrigger1.onTrue(Commands.run(()->m_LED.setShooter(true)))
     //                    .onFalse(Commands.run(()->m_LED.setShooter(false)));

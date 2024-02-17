@@ -25,7 +25,7 @@ public class AngleSubSystem extends SubsystemBase {
         SPEAKER,
         AMP,
         TRAP,
-        FEED
+        INTAKE
     }
 
     public enum Mode{
@@ -38,10 +38,11 @@ public class AngleSubSystem extends SubsystemBase {
     private Mode m_presentMode;
 
     private double m_setPoint_Position;
+    private double m_setPoint_Adjust;
     private double m_speaker_position;
     private double m_amp_position;
     private double m_trap_position;
-    private double m_feed_position;
+    private double m_intake_position;
 
     private TalonFX m_angleLeftMotor;
     private TalonFX m_angleRightMotor;
@@ -54,7 +55,9 @@ public class AngleSubSystem extends SubsystemBase {
         m_speaker_position = Constants.ANGLE.SPEAKER;
         m_amp_position = Constants.ANGLE.AMP;
         m_trap_position = Constants.ANGLE.TRAP;
-        m_feed_position = Constants.ANGLE.FEED;
+        m_intake_position = Constants.ANGLE.INTAKE;
+        m_setPoint_Position = Constants.ANGLE.SPEAKER;
+        m_setPoint_Adjust = 0;
 
         angleMotorInit();
     }
@@ -107,17 +110,24 @@ public class AngleSubSystem extends SubsystemBase {
         //NOPE, magnet offset did not work.   go back to set rotor to zero.
     }
 
-    public void setPositionJoy(double desiredPosition){
-        switch(m_presentMode){
-            default:
-            case MMV:
-                System.out.println("angle setPositionJoy: " + desiredPosition);
-                m_angleLeftMotor.setControl(m_angleMotorMMV.withPosition(desiredPosition));
-                break;
-            case MMV_FOC:
-                //TBD
-                break;
+    public void setPositionJoy(double desiredAjustPosition){
+        if (Math.abs(desiredAjustPosition)>0.5){
+            m_setPoint_Adjust = m_setPoint_Adjust + desiredAjustPosition;
+            System.out.println("set angle desired position: " + m_setPoint_Position + ", plus: " +m_setPoint_Adjust);
+            setPosition(m_setPoint_Position + m_setPoint_Adjust);
         }
+
+
+        // switch(m_presentMode){
+        //     default:
+        //     case MMV:
+        //         System.out.println("angle setPositionJoy: " + desiredPosition);
+        //         m_angleLeftMotor.setControl(m_angleMotorMMV.withPosition(desiredPosition));
+        //         break;
+        //     case MMV_FOC:
+        //         //TBD
+        //         break;
+        // }
     }
 
     public void setPosition(double desiredPosition){
@@ -149,8 +159,8 @@ public class AngleSubSystem extends SubsystemBase {
     public void setTrapPosition(double desiredPosition) {
         m_trap_position = desiredPosition;
 	}
-    public void setFeedPosition(double desiredPosition){
-        m_feed_position = desiredPosition;
+    public void setIntakePosition(double desiredPosition){
+        m_intake_position = desiredPosition;
     }
 
 
@@ -167,8 +177,8 @@ public class AngleSubSystem extends SubsystemBase {
     public double getTrapPosition(){
         return this.m_trap_position;
     }
-    public double getFeedPosition(){
-        return this.m_feed_position;
+    public double getIntakePosition(){
+        return this.m_intake_position;
     }
 
     @Override
@@ -180,7 +190,7 @@ public class AngleSubSystem extends SubsystemBase {
         builder.addDoubleProperty("speaker position", this::getSpeakerPosition,this::setSpeakerPosition);
         builder.addDoubleProperty("amp position", this::getAmpPosition,this::setAmpPosition);
         builder.addDoubleProperty("trap position", this::getTrapPosition,this::setTrapPosition);
-        builder.addDoubleProperty("feed position", this::getFeedPosition,this::setFeedPosition);
+        builder.addDoubleProperty("intake position", this::getIntakePosition,this::setIntakePosition);
         builder.addStringProperty("State", () -> m_presentState.toString(),null);
         builder.addStringProperty("Mode", () -> m_presentMode.toString(),null);
     }
@@ -190,7 +200,7 @@ public class AngleSubSystem extends SubsystemBase {
 
         double desiredPosition = 0;
 
-        System.out.println("set state command: " + wantedState.toString());
+        System.out.println("set angle state: " + wantedState.toString());
 
         switch(wantedState){
             default:
@@ -203,8 +213,8 @@ public class AngleSubSystem extends SubsystemBase {
             case TRAP:
                 desiredPosition = m_trap_position;
                 break;
-            case FEED:
-                desiredPosition = m_feed_position;
+            case INTAKE:
+                desiredPosition = m_intake_position;
                 break;
         }
 

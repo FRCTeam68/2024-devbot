@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import javax.management.timer.Timer;
-
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
@@ -14,6 +12,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -52,6 +51,7 @@ public class AngleSubSystem extends SubsystemBase {
     private MotionMagicVoltage m_angleMotorMMV;
     private NeutralOut m_brake;
     private Timer m_bumpTimer;
+    private double m_bumpCount;
 
     public AngleSubSystem(){
         m_presentState = State.SPEAKER;
@@ -62,8 +62,9 @@ public class AngleSubSystem extends SubsystemBase {
         m_intake_position = Constants.ANGLE.INTAKE;
         m_setPoint_Position = Constants.ANGLE.SPEAKER;
         m_setPoint_Adjust = 0;
-
+        m_bumpTimer = new Timer();
         m_bumpTimer.start();
+        m_bumpCount = 0;
 
         angleMotorInit();
     }
@@ -119,9 +120,15 @@ public class AngleSubSystem extends SubsystemBase {
     }
 
     public void setPositionJoy(double desiredAjustPosition){
-        if (Math.abs(desiredAjustPosition)>0.5){
+        m_bumpCount = m_bumpCount + 1;
+        if ((Math.abs(desiredAjustPosition)>0.5) && (m_bumpTimer.hasElapsed(1))) {
+            m_bumpTimer.restart();
+            
             m_setPoint_Adjust = m_setPoint_Adjust + desiredAjustPosition*Constants.ANGLE.BUMP_VALUE;
-            System.out.println("set angle desired position: " + m_setPoint_Position + ", plus: " + m_setPoint_Adjust);
+            System.out.println("desired: " + desiredAjustPosition
+                               + "setpoint: " + m_setPoint_Position 
+                               + ", plus: " + m_setPoint_Adjust
+                               + ", count: " + m_bumpCount);
             setPosition(m_setPoint_Position + m_setPoint_Adjust);
         }
 

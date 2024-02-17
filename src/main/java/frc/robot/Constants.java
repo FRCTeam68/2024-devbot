@@ -42,7 +42,7 @@ public final class Constants {
         public static final double AMP = -6;
         public static final double TRAP = -4;
         public static final double INTAKE = 2;
-        public static final double BUMP_VALUE = 1;
+        public static final double BUMP_VALUE = .25;
         // public static final double VISION = 0;
     }
 

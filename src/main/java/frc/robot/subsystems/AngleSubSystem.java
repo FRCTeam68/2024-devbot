@@ -2,14 +2,17 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -24,7 +27,7 @@ public class AngleSubSystem extends SubsystemBase {
         SPEAKER,
         AMP,
         TRAP,
-        FEED
+        INTAKE
     }
 
     public enum Mode{
@@ -37,14 +40,18 @@ public class AngleSubSystem extends SubsystemBase {
     private Mode m_presentMode;
 
     private double m_setPoint_Position;
+    private double m_setPoint_Adjust;
     private double m_speaker_position;
     private double m_amp_position;
     private double m_trap_position;
-    private double m_feed_position;
+    private double m_intake_position;
 
-    private TalonFX m_angleMotor;
+    private TalonFX m_angleLeftMotor;
+    private TalonFX m_angleRightMotor;
     private MotionMagicVoltage m_angleMotorMMV;
     private NeutralOut m_brake;
+    private Timer m_bumpTimer;
+    private double m_bumpCount;
 
     public AngleSubSystem(){
         m_presentState = State.SPEAKER;
@@ -52,13 +59,21 @@ public class AngleSubSystem extends SubsystemBase {
         m_speaker_position = Constants.ANGLE.SPEAKER;
         m_amp_position = Constants.ANGLE.AMP;
         m_trap_position = Constants.ANGLE.TRAP;
-        m_feed_position = Constants.ANGLE.FEED;
+        m_intake_position = Constants.ANGLE.INTAKE;
+        m_setPoint_Position = Constants.ANGLE.SPEAKER;
+        m_setPoint_Adjust = 0;
+        m_bumpTimer = new Timer();
+        m_bumpTimer.start();
+        m_bumpCount = 0;
 
         angleMotorInit();
     }
 
     private void angleMotorInit(){
-        m_angleMotor = new TalonFX(Constants.ANGLE.CANID);
+        m_angleLeftMotor = new TalonFX(Constants.ANGLE.LEFT_CANID, "rio");
+        m_angleRightMotor = new TalonFX(Constants.ANGLE.RIGHT_CANID, "rio");
+        m_angleRightMotor.setControl(new Follower(Constants.ANGLE.LEFT_CANID, true));
+
         m_angleMotorMMV = new MotionMagicVoltage(Constants.ANGLE.SPEAKER);  
 
         TalonFXConfiguration cfg = new TalonFXConfiguration();
@@ -67,7 +82,8 @@ public class AngleSubSystem extends SubsystemBase {
         cfg.MotionMagic.MotionMagicAcceleration = 100; // Take approximately 0.5 seconds to reach max vel
         cfg.MotionMagic.MotionMagicJerk = 700;   
 
-		m_angleMotor.setInverted(true);
+        cfg.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+		// m_angleLeftMotor.setInverted(true);
         
         cfg.Slot0.kP = 55.0F;
         cfg.Slot0.kI = 0.0F;
@@ -80,7 +96,7 @@ public class AngleSubSystem extends SubsystemBase {
 
         StatusCode status = StatusCode.StatusCodeNotInitialized;
         for(int i = 0; i < 5; ++i) {
-          status = m_angleMotor.getConfigurator().apply(cfg);
+          status = m_angleLeftMotor.getConfigurator().apply(cfg);
           if (status.isOK()) break;
         }
         if (!status.isOK()) {
@@ -88,7 +104,7 @@ public class AngleSubSystem extends SubsystemBase {
         }
 
         m_angleMotorMMV.OverrideBrakeDurNeutral = true;
-        m_angleMotor.setVoltage(0);
+        m_angleLeftMotor.setVoltage(0);
         // m_angleMotor.setSafetyEnabled(false);
 
         zeroAngleSensor(); 
@@ -96,24 +112,36 @@ public class AngleSubSystem extends SubsystemBase {
 
     public void zeroAngleSensor(){
         // m_rotateMotor.setRotorPosition(0);  no setRotorPosition anymore.  does setPosition do the same thing???
-        m_angleMotor.setPosition(0);
+        m_angleLeftMotor.setPosition(0);
         //move arm to speaker '0' position
         //  No need to zero.   absolute CAN coder position will be used.
         //  so if it starts off zero, it will go to zero upon going to Nuetral state 
         //NOPE, magnet offset did not work.   go back to set rotor to zero.
     }
 
-    public void setPositionJoy(double desiredPosition){
-        switch(m_presentMode){
-            default:
-            case MMV:
-                System.out.println("angle setPositionJoy: " + desiredPosition);
-                m_angleMotor.setControl(m_angleMotorMMV.withPosition(desiredPosition));
-                break;
-            case MMV_FOC:
-                //TBD
-                break;
+    public void setPositionJoy(double desiredAjustPosition){
+        m_bumpCount = m_bumpCount + 1;
+        if ((Math.abs(desiredAjustPosition)>0.5) && (m_bumpTimer.hasElapsed(1))) {
+            m_bumpTimer.restart();
+            
+            m_setPoint_Adjust = m_setPoint_Adjust + desiredAjustPosition*Constants.ANGLE.BUMP_VALUE;
+            System.out.println("desired: " + desiredAjustPosition
+                               + "setpoint: " + m_setPoint_Position 
+                               + ", plus: " + m_setPoint_Adjust
+                               + ", count: " + m_bumpCount);
+            setPosition(m_setPoint_Position + m_setPoint_Adjust);
         }
+
+        // switch(m_presentMode){
+        //     default:
+        //     case MMV:
+        //         System.out.println("angle setPositionJoy: " + desiredPosition);
+        //         m_angleLeftMotor.setControl(m_angleMotorMMV.withPosition(desiredPosition));
+        //         break;
+        //     case MMV_FOC:
+        //         //TBD
+        //         break;
+        // }
     }
 
     public void setPosition(double desiredPosition){
@@ -127,7 +155,7 @@ public class AngleSubSystem extends SubsystemBase {
             default:
             case MMV:
                 System.out.println("call motor MMV ");
-                m_angleMotor.setControl(m_angleMotorMMV.withPosition(m_setPoint_Position));
+                m_angleLeftMotor.setControl(m_angleMotorMMV.withPosition(m_setPoint_Position));
                 break;
     
             case MMV_FOC:
@@ -145,8 +173,8 @@ public class AngleSubSystem extends SubsystemBase {
     public void setTrapPosition(double desiredPosition) {
         m_trap_position = desiredPosition;
 	}
-    public void setFeedPosition(double desiredPosition){
-        m_feed_position = desiredPosition;
+    public void setIntakePosition(double desiredPosition){
+        m_intake_position = desiredPosition;
     }
 
 
@@ -163,8 +191,8 @@ public class AngleSubSystem extends SubsystemBase {
     public double getTrapPosition(){
         return this.m_trap_position;
     }
-    public double getFeedPosition(){
-        return this.m_feed_position;
+    public double getIntakePosition(){
+        return this.m_intake_position;
     }
 
     @Override
@@ -176,7 +204,7 @@ public class AngleSubSystem extends SubsystemBase {
         builder.addDoubleProperty("speaker position", this::getSpeakerPosition,this::setSpeakerPosition);
         builder.addDoubleProperty("amp position", this::getAmpPosition,this::setAmpPosition);
         builder.addDoubleProperty("trap position", this::getTrapPosition,this::setTrapPosition);
-        builder.addDoubleProperty("feed position", this::getFeedPosition,this::setFeedPosition);
+        builder.addDoubleProperty("intake position", this::getIntakePosition,this::setIntakePosition);
         builder.addStringProperty("State", () -> m_presentState.toString(),null);
         builder.addStringProperty("Mode", () -> m_presentMode.toString(),null);
     }
@@ -186,7 +214,7 @@ public class AngleSubSystem extends SubsystemBase {
 
         double desiredPosition = 0;
 
-        System.out.println("set state command: " + wantedState.toString());
+        System.out.println("set angle state: " + wantedState.toString());
 
         switch(wantedState){
             default:
@@ -199,10 +227,11 @@ public class AngleSubSystem extends SubsystemBase {
             case TRAP:
                 desiredPosition = m_trap_position;
                 break;
-            case FEED:
-                desiredPosition = m_feed_position;
+            case INTAKE:
+                desiredPosition = m_intake_position;
                 break;
         }
+        m_setPoint_Adjust = 0;
 
         setPosition(desiredPosition);    
 	}

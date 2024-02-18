@@ -113,8 +113,9 @@ public class RobotContainer {
     // m_Intake.setDefaultCommand(Commands.run( () ->
     //             m_Intake.setSpeedVout(m_ps4Controller.getLeftY() * 12), m_Intake));
 
+    //***************************
     // m_Angle.setDefaultCommand(Commands.run( () ->
-    //             m_Angle.setPositionJoy(m_ps4Controller.getRightY() * 10), m_Angle));
+    //             m_Angle.setPositionJoy(m_ps4Controller.getRightY()), m_Angle));
 
     // m_Shooter.setDefaultCommand(Commands.run( () ->
     //             m_Shooter.setSpeedVout(m_ps4Controller.getRightY() * 12), m_Shooter));
@@ -131,7 +132,10 @@ public class RobotContainer {
     m_NoteSensorTrigger3.onTrue(Commands.runOnce(()->m_NoteSubSystem.setAction(ActionRequest.BEAM3))
                                         .andThen(()->SmartDashboard.putBoolean("NoteSensor3", true)))
                        .onFalse(Commands.runOnce(()->SmartDashboard.putBoolean("NoteSensor3", false)));
-
+    m_NoteSensorTrigger1.onTrue(Commands.runOnce(()->SmartDashboard.putBoolean("NoteSensor1", true)))
+                       .onFalse(Commands.runOnce(()->SmartDashboard.putBoolean("NoteSensor1", false)));
+    m_NoteSensorTrigger2.onTrue(Commands.runOnce(()->SmartDashboard.putBoolean("NoteSensor2", true)))
+                       .onFalse(Commands.runOnce(()->SmartDashboard.putBoolean("NoteSensor2", false)));
   }
 
 

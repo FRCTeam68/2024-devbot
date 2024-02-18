@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
@@ -166,7 +167,8 @@ public class AngleSubSystem extends SubsystemBase {
     }
 
     public boolean atAngle(){
-        double motorPosition = m_angleMotor.getPosition().getValueAsDouble();
+        double motorPosition = m_angleLeftMotor.getPosition().getValueAsDouble();
+        System.out.println("at angle: " + motorPosition);
         return Math.abs(m_setPoint_Position-motorPosition) < 1.0;
     }
 

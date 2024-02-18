@@ -63,15 +63,15 @@ public class NoteSubSystem extends SubsystemBase {
         m_target = Target.INTAKE;
         m_wantedAction = ActionRequest.IDLE;
 
-        RollerSubSystem m_Intake = new RollerSubSystem("Intake");
-        RollerSubSystem m_Feeder1 = new RollerSubSystem("Feeder1");
-        RollerSubSystem m_Feeder2 = new RollerSubSystem("Feeder2");
+        RollerSubSystem m_Intake = new RollerSubSystem("Intake", "DRIVEbus");
+        //RollerSubSystem m_Feeder1 = new RollerSubSystem("Feeder1", "rio");
+       // RollerSubSystem m_Feeder2 = new RollerSubSystem("Feeder2", "rio");
         ShooterSubSystem m_Shooter = new ShooterSubSystem();
         AngleSubSystem m_Angle = new AngleSubSystem();
 
         Shuffleboard.getTab("IntakeSubsystem").add(m_Intake);
-        Shuffleboard.getTab("Feeder1Subsystem").add(m_Feeder1);
-        Shuffleboard.getTab("Feeder2Subsystem").add(m_Feeder2);
+        // Shuffleboard.getTab("Feeder1Subsystem").add(m_Feeder1);
+        // Shuffleboard.getTab("Feeder2Subsystem").add(m_Feeder2);
         Shuffleboard.getTab("ShooterSubystem").add(m_Shooter);
         Shuffleboard.getTab("AngleSubsystem").add(m_Angle);
         
@@ -131,9 +131,10 @@ public class NoteSubSystem extends SubsystemBase {
                 if (m_presentState == State.EMPTY){
                     setTarget(Target.INTAKE);   //incase user did not press X button
                     if (m_Angle.atAngle()){
-                        m_Intake.setSpeed(Constants.INTAKE.TAKE_NOTE_SPEED);
-                        m_Feeder1.setSpeed(Constants.FEEDER1.TAKE_NOTE_SPEED);
-                        m_Feeder2.setSpeed(Constants.FEEDER2.TAKE_NOTE_SPEED);
+                        System.out.println("do note action: " + m_wantedAction.toString());
+                        // m_Intake.setSpeed(Constants.INTAKE.TAKE_NOTE_SPEED);
+                        // m_Feeder1.setSpeed(Constants.FEEDER1.TAKE_NOTE_SPEED);
+                        // m_Feeder2.setSpeed(Constants.FEEDER2.TAKE_NOTE_SPEED);
                         m_presentState = State.INTAKING_NOTE1;
                         m_wantedAction = ActionRequest.IDLE;
                     }
@@ -142,6 +143,7 @@ public class NoteSubSystem extends SubsystemBase {
                 break;
             case BEAM3:
                 if (m_presentState == State.INTAKING_NOTE1){
+                    System.out.println("do note action: " + m_wantedAction.toString());
                     m_Intake.setSpeed(0);
                     m_Feeder1.setSpeed(0);
                     m_Feeder2.setSpeed(0);
@@ -162,7 +164,7 @@ public class NoteSubSystem extends SubsystemBase {
                 if (m_presentState == State.HAVE_NOTE1){
                     m_Shooter.setSpeed(Constants.SHOOTER.SHOOT_SPEED);
                     if (m_Angle.atAngle() && m_Shooter.atSpeed()){
-                        m_Feeder2.setSpeed(Constants.FEEDER2.SHOOT_SPEED);
+                        // m_Feeder2.setSpeed(Constants.FEEDER2.SHOOT_SPEED);
                         m_shootRunTime.start();
                         m_presentState = State.SHOOTING;
                     }

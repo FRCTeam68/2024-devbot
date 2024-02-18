@@ -64,18 +64,22 @@ public final class Constants {
     }
 
     public static final class ANGLE {
-        public static final int CANID = 32;
-        public static final double SPEAKER = 0;
-        public static final double AMP = 20;
-        public static final double TRAP = 30;
-        public static final double FEED = -5;
-        public static final double VISION = 0;
+        public static final int LEFT_CANID = 32;
+        public static final int RIGHT_CANID = 33;
+        public static final double SPEAKER = 0; //-2;
+        //positive value makes shooter side go up
+        //negative value makes shooter side go down
+        public static final double AMP = 0; // -6;
+        public static final double TRAP = 0; //-4;
+        public static final double INTAKE = 0;
+        public static final double BUMP_VALUE = .25;
+        // public static final double VISION = 0;
     }
 
     public static final class CLIMBER {
         public static final int LEFT_CANID = 40;
         public static final int RIGHT_CANID = 41;
-        public static final double MAX_HEIGHT = 12;   //inches
+        public static final double MAX_HEIGHT = 9;   //inches
     }
 
     // public static final class CAMERA {

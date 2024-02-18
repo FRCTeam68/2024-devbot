@@ -31,12 +31,12 @@ public class RollerSubSystem extends SubsystemBase {
     private NeutralOut m_brake;
     
 
-    public RollerSubSystem(String name){
+    public RollerSubSystem(String name, String canbus){
         m_name = name;
         m_presentMode = Mode.VOLTAGE_OUT;
         m_setPoint_Speed = 0;
 
-        m_rollerMotor = new TalonFX(Constants.INTAKE.CANID);
+        m_rollerMotor = new TalonFX(Constants.INTAKE.CANID, canbus);
         // m_intakeMotor = new TalonFX(Constants.INTAKE.CANID, "MANIPbus");
 
         m_voltageOut = new VoltageOut(0);

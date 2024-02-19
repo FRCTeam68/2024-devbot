@@ -227,6 +227,10 @@ public class ShooterSubSystem extends SubsystemBase {
         return this.m_setPoint_Right_Speed;
     }
 
+    public double getSpeed(){
+        return this.m_setPoint_Left_Speed;
+    }
+
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("Shooter");

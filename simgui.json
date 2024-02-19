@@ -42,15 +42,25 @@
         "AngleSubsystem": {
           "AngleSubSystem": {
             "open": true
-          },
-          "open": true
+          }
         },
         "IntakeSubsystem": {
           "RollerSubSystem": {
             "open": true
+          }
+        },
+        "NoteSubsystem": {
+          "NoteSubSystem": {
+            "open": true,
+            "setpoint": {
+              "open": true
+            }
           },
           "open": true
         },
+        "open": true
+      },
+      "SmartDashboard": {
         "open": true
       }
     }

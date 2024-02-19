@@ -59,6 +59,13 @@ public class NoteSubSystem extends SubsystemBase {
     private AngleSubSystem m_Angle;
     private Timer m_shootRunTime;
     private Timer m_timeout;
+    private double m_angle_setpoint;
+    private double m_shooter_setpoint;
+    private double m_shooterRight_setpoint;
+    private double m_shooterfeeder2_setpoint;
+    private double m_feeder2_setpoint;
+    private double m_feeder1_setpoint;
+    private double m_intake_setpoint;
 
     public NoteSubSystem(){
         m_presentState = State.EMPTY;
@@ -80,6 +87,14 @@ public class NoteSubSystem extends SubsystemBase {
         m_shootRunTime = new Timer();
         m_timeout = new Timer();
 
+        m_angle_setpoint=0;
+        m_shooter_setpoint = Constants.SHOOTER.SHOOT_SPEED;
+        m_shooterRight_setpoint=0;
+        m_shooterfeeder2_setpoint = Constants.FEEDER2.SHOOT_SPEED;
+        m_feeder2_setpoint = Constants.FEEDER2.TAKE_NOTE_SPEED;
+        m_feeder1_setpoint=Constants.FEEDER1.TAKE_NOTE_SPEED;
+        m_intake_setpoint=Constants.INTAKE.TAKE_NOTE_SPEED;
+
         System.out.println("Note subsystem created");
     }
 
@@ -89,8 +104,52 @@ public class NoteSubSystem extends SubsystemBase {
         builder.addStringProperty("State", () -> m_presentState.toString(),null);
         builder.addStringProperty("Target", () -> m_target.toString(),null);
         builder.addStringProperty("Action", () -> m_wantedAction.toString(),null);
+        builder.addDoubleProperty("setpoint/shooter", this::getShooterSetpointSpeed,this::setShooterSetpointSpeed);
+        builder.addDoubleProperty("setpoint/shooterR", this::getShooterRSetpointSpeed,this::setShooterRSetpointSpeed);
+        builder.addDoubleProperty("setpoint/shooterFD2", this::getShooterFD2SetpointSpeed,this::setShooterFD2SetpointSpeed);
+        builder.addDoubleProperty("setpoint/feeder2", this::getFeeder2SetpointSpeed,this::setFeeder2SetpointSpeed);
+        builder.addDoubleProperty("setpoint/feeder1", this::getFeeder1SetpointSpeed,this::setFeeder1SetpointSpeed);
+        builder.addDoubleProperty("setpoint/intake", this::getIntakeSetpointSpeed,this::setIntakeSetpointSpeed);
     }
 
+    
+    public double getShooterSetpointSpeed(){
+        return this.m_shooter_setpoint;
+    }
+    public double getShooterRSetpointSpeed(){
+        return this.m_shooterRight_setpoint;
+    }
+    public double getShooterFD2SetpointSpeed(){
+        return this.m_shooterfeeder2_setpoint;
+    }
+    public double getFeeder2SetpointSpeed(){
+        return this.m_feeder2_setpoint;
+    }
+    public double getFeeder1SetpointSpeed(){
+        return this.m_feeder1_setpoint;
+    }
+    public double getIntakeSetpointSpeed(){
+        return this.m_intake_setpoint;
+    }
+
+    public void setShooterSetpointSpeed(double desiredSpeed){
+        m_shooter_setpoint=desiredSpeed;
+    }
+    public void setShooterRSetpointSpeed(double desiredSpeed){
+        m_shooterRight_setpoint=desiredSpeed;
+    }
+    public void setShooterFD2SetpointSpeed(double desiredSpeed){
+        m_shooterfeeder2_setpoint=desiredSpeed;
+    }
+    public void setFeeder2SetpointSpeed(double desiredSpeed){
+        m_feeder2_setpoint=desiredSpeed;
+    }
+    public void setFeeder1SetpointSpeed(double desiredSpeed){
+        m_feeder1_setpoint=desiredSpeed;
+    }
+    public void setIntakeSetpointSpeed(double desiredSpeed){
+        m_intake_setpoint=desiredSpeed;
+    }
 
     public void setTarget(Target wantedTarget) {
 		m_target = wantedTarget;
@@ -163,9 +222,9 @@ public class NoteSubSystem extends SubsystemBase {
                         (m_timeout.hasElapsed(Constants.ANGLE.ATANGLE_TIMEOUT))) {
 
                         System.out.println("  do note action: " + m_wantedAction.toString());
-                        m_Intake.setSpeed(Constants.INTAKE.TAKE_NOTE_SPEED);
-                        m_Feeder1.setSpeed(Constants.FEEDER1.TAKE_NOTE_SPEED);
-                        m_Feeder2.setSpeed(Constants.FEEDER2.TAKE_NOTE_SPEED);
+                        m_Intake.setSpeed(m_intake_setpoint);
+                        m_Feeder1.setSpeed(m_feeder1_setpoint);
+                        m_Feeder2.setSpeed(m_feeder2_setpoint);
                         setState(State.INTAKING_NOTE1);
                         setAction(ActionRequest.IDLE);
                     }
@@ -194,13 +253,14 @@ public class NoteSubSystem extends SubsystemBase {
             case SHOOT:
                 if (m_presentState == State.HAVE_NOTE1){
                     System.out.println("  do note action1: " + m_wantedAction.toString());
-                    m_Shooter.setSpeed(Constants.SHOOTER.SHOOT_SPEED);
+                    m_Shooter.setRightOffsetSpeed(m_shooterRight_setpoint);
+                    m_Shooter.setSpeed(m_shooter_setpoint);
 
                     m_timeout.restart();
                     if ((m_Angle.atAngle() && m_Shooter.atSpeed()) || 
                         (m_timeout.hasElapsed(Constants.ANGLE.ATANGLE_TIMEOUT))) {
 
-                        m_Feeder2.setSpeed(Constants.FEEDER2.SHOOT_SPEED);
+                        m_Feeder2.setSpeed(m_shooterfeeder2_setpoint);
                         m_shootRunTime.restart();
                         setState(State.SHOOTING);
                     }
@@ -233,18 +293,28 @@ public class NoteSubSystem extends SubsystemBase {
 
     public void bumpIntake1Speed(double bumpAmount){
         m_Intake.bumpSpeed(bumpAmount);
+        m_intake_setpoint=m_Intake.getSpeed();
         m_Feeder1.bumpSpeed(bumpAmount);
+        m_feeder1_setpoint=m_Feeder1.getSpeed();
         m_Feeder2.bumpSpeed(bumpAmount);
+        m_feeder2_setpoint=m_Feeder2.getSpeed();
     }
 
     public void bumpIntake2Speed(double bumpAmount){
         m_Intake.bumpSpeed(bumpAmount);
+        m_intake_setpoint=m_Intake.getSpeed();
         m_Feeder1.bumpSpeed(bumpAmount);
+        m_feeder1_setpoint=m_Feeder1.getSpeed();
     }
 
     public void bumpShooterSpeed(double bumpAmount){
+        m_Shooter.setSpeed(m_shooter_setpoint);
         m_Shooter.bumpSpeed(bumpAmount);
+        m_shooter_setpoint=m_Shooter.getSpeed();
+
+        m_Feeder2.setSpeed(m_shooterfeeder2_setpoint);
         m_Feeder2.bumpSpeed(bumpAmount);
+        m_shooterfeeder2_setpoint=m_Feeder2.getSpeed();
     }
 
     public void bumpAnglePosition(double bumpAmount){

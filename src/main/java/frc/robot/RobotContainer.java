@@ -63,6 +63,8 @@ public class RobotContainer {
     configureBindings();
 
        // Put subsystems to dashboard.
+    Shuffleboard.getTab("NoteSubsystem").add(m_NoteSubSystem);
+
     // Shuffleboard.getTab("Drivetrain").add(m_robotDrive);
     // Shuffleboard.getTab("ClimberSubSystem").add(m_Climber);
 

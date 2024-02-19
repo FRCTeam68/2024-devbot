@@ -7,6 +7,7 @@ import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -31,13 +32,12 @@ public class RollerSubSystem extends SubsystemBase {
     private NeutralOut m_brake;
     
 
-    public RollerSubSystem(String name, String canbus){
+    public RollerSubSystem(String name, int canID, String canbus){
         m_name = name;
         m_presentMode = Mode.VOLTAGE_OUT;
         m_setPoint_Speed = 0;
 
-        m_rollerMotor = new TalonFX(Constants.INTAKE.CANID, canbus);
-        // m_intakeMotor = new TalonFX(Constants.INTAKE.CANID, "MANIPbus");
+        m_rollerMotor = new TalonFX(canID, canbus);
 
         m_voltageOut = new VoltageOut(0);
 
@@ -49,10 +49,6 @@ public class RollerSubSystem extends SubsystemBase {
                                          false, false, false);
         /* Keep a neutral out so we can disable the motor */
         m_brake = new NeutralOut();
-
-        System.out.println(m_name + " subsystem created");
-        
-
         TalonFXConfiguration configs = new TalonFXConfiguration();
 
         /* Voltage-based velocity requires a feed forward to account for the back-emf of the motor */
@@ -76,8 +72,9 @@ public class RollerSubSystem extends SubsystemBase {
         configs.Slot1.kD = 0.001; // A change of 1000 rotation per second squared results in 1 amp output
     
         // Peak output of 40 amps
-        configs.TorqueCurrent.PeakForwardTorqueCurrent = 40;
-        configs.TorqueCurrent.PeakReverseTorqueCurrent = -40;
+        // configs.TorqueCurrent.PeakForwardTorqueCurrent = 40;
+        // configs.TorqueCurrent.PeakReverseTorqueCurrent = -40;
+        configs.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     
         /* Retry config apply up to 5 times, report if failure */
         StatusCode status = StatusCode.StatusCodeNotInitialized;
@@ -94,22 +91,22 @@ public class RollerSubSystem extends SubsystemBase {
 
     public void setSpeedVout(double desiredVoltage){
         if(m_presentMode == Mode.VOLTAGE_OUT){
-            if (Math.abs(desiredVoltage) <= Constants.ROLLER.MAXVOLTAGE*.1) { // Joystick deadzone
+            if (Math.abs(desiredVoltage) <= Constants.ROLLER.MAX_VOLTAGE*.1) { // Joystick deadzone
                 m_setPoint_Voltage = 0;
             }
             else {
                 m_setPoint_Voltage = desiredVoltage;
             }
-            System.out.println(m_name + " setSpeedVout: " + m_setPoint_Voltage);
+            System.out.println("              desired voltage: " + m_setPoint_Voltage);
             m_rollerMotor.setControl(m_voltageOut.withOutput(m_setPoint_Voltage));
         }
     }
 
     public void setSpeed(double desiredRotationsPerSecond){
 
-        System.out.println("set " + m_name + " desired speed: " + desiredRotationsPerSecond);
+        System.out.println("    set " + m_name + " desired speed: " + desiredRotationsPerSecond);
 
-        if (Math.abs(desiredRotationsPerSecond) <= 1) { // Joystick deadzone
+        if (Math.abs(desiredRotationsPerSecond) < 1) { // Joystick deadzone
             desiredRotationsPerSecond = 0;
             m_setPoint_Speed = 0;
             /* Disable the motor instead */
@@ -118,10 +115,9 @@ public class RollerSubSystem extends SubsystemBase {
         else
             m_setPoint_Speed = desiredRotationsPerSecond;
 
-            System.out.println(m_name + "present mode: " + m_presentMode.toString());
             switch(m_presentMode){
                 case VOLTAGE_OUT:
-                    this.setSpeedVout((m_setPoint_Speed/Constants.ROLLER.MAXSPEED)/Constants.ROLLER.MAXVOLTAGE);
+                    this.setSpeedVout((m_setPoint_Speed/Constants.ROLLER.MAX_SPEED)*Constants.ROLLER.MAX_VOLTAGE);
                     break;
                 default:
                 case VOLTAGE_FOC:

@@ -43,6 +43,7 @@ public final class Constants {
         public static final String CANBUS = "DRIVEbus";
         public static final double TAKE_NOTE_SPEED = -40;
         public static final double SPIT_NOTE_SPEED = 30;
+        public static final double BUMP_VALUE = 0.2;  // 50 counts / second = 10rps
     }
 
     public static final class FEEDER1 {

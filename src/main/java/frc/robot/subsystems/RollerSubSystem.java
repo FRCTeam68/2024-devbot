@@ -102,6 +102,14 @@ public class RollerSubSystem extends SubsystemBase {
         }
     }
 
+    public void bumpSpeed(double bumpAmount){
+        double new_value = m_setPoint_Speed + bumpAmount;
+        if (Math.abs(new_value) < 1){
+            new_value = bumpAmount < 0? -1 : 1;
+        }
+        setSpeed(new_value);
+    }
+
     public void setSpeed(double desiredRotationsPerSecond){
 
         System.out.println("    set " + m_name + " desired speed: " + desiredRotationsPerSecond);
@@ -112,8 +120,18 @@ public class RollerSubSystem extends SubsystemBase {
             /* Disable the motor instead */
             m_rollerMotor.setControl(m_brake);
         }
-        else
-            m_setPoint_Speed = desiredRotationsPerSecond;
+        else {
+            if (desiredRotationsPerSecond > Constants.ROLLER.MAX_SPEED){
+                m_setPoint_Speed = Constants.ROLLER.MAX_SPEED;
+                System.out.println("  trimmed to max speed: " + m_setPoint_Speed);
+            }
+            else if (desiredRotationsPerSecond < -Constants.ROLLER.MAX_SPEED){
+                m_setPoint_Speed = -Constants.ROLLER.MAX_SPEED;
+                System.out.println("  trimmed to max speed: " + m_setPoint_Speed);
+            }
+            else{
+                m_setPoint_Speed = desiredRotationsPerSecond;
+            }
 
             switch(m_presentMode){
                 case VOLTAGE_OUT:
@@ -134,6 +152,7 @@ public class RollerSubSystem extends SubsystemBase {
                     m_rollerMotor.setControl(m_torqueVelocity.withVelocity(m_setPoint_Speed).withFeedForward(friction_torque));
                     break;
             }
+        }
     }
 
     public double getSpeed(){

@@ -142,7 +142,11 @@ public class AngleSubSystem extends SubsystemBase {
     }
 
     public void bumpPosition(double bumpAmount){
-        setPosition(m_setPoint_Position + bumpAmount);
+        double new_value = m_setPoint_Position + bumpAmount;
+        if (Math.abs(new_value) < 1){
+            new_value = bumpAmount < 0? -1 : 1;
+        }
+        setPosition(new_value);
     }
 
     public void setPosition(double desiredPosition){

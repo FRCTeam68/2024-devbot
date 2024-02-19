@@ -110,10 +110,15 @@ public class RobotContainer {
     m_ps4Controller.povLeft().onTrue(Commands.runOnce(()->m_NoteSubSystem.bumpAnglePosition((Constants.ANGLE.BUMP_VALUE))));
     m_ps4Controller.povRight().onTrue(Commands.runOnce(()->m_NoteSubSystem.bumpAnglePosition((-Constants.ANGLE.BUMP_VALUE))));
 
+    //Left Joystick Y
+    m_ps4Controller.axisGreaterThan(1,0.7).whileTrue(Commands.run(()->m_NoteSubSystem.bumpIntake1Speed((-Constants.INTAKE.BUMP_VALUE))));
+    m_ps4Controller.axisLessThan(1,-0.7).whileTrue(Commands.run(()->m_NoteSubSystem.bumpIntake1Speed((Constants.INTAKE.BUMP_VALUE))));
+    //Right Joystick Y
+    m_ps4Controller.axisGreaterThan(5,0.7).whileTrue(Commands.run(()->m_NoteSubSystem.bumpIntake2Speed((-Constants.INTAKE.BUMP_VALUE))));
+    m_ps4Controller.axisLessThan(5,-0.7).whileTrue(Commands.run(()->m_NoteSubSystem.bumpIntake2Speed((Constants.INTAKE.BUMP_VALUE))));
     //***************************
     // m_Climber.setDefaultCommand(Commands.run( () ->
-    //             m_Climber.setSpeedVout(-m_ps4Controller.getLeftY() * 12,
-    //                                    m_ps4Controller.getRightY() * 12), m_Climber));
+    //             m_Climber.setSpeedVout(-m_ps4Controller.g+tRightY() * 12), m_Climber));
 
     // m_NoteSensorTrigger1.onTrue(Commands.runOnce(()->SmartDashboard.putBoolean("NoteSensor1", true)))
     //                    .onFalse(Commands.runOnce(()->SmartDashboard.putBoolean("NoteSensor1", false)));

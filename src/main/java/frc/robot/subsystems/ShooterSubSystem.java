@@ -149,7 +149,11 @@ public class ShooterSubSystem extends SubsystemBase {
     }
 
     public void bumpSpeed(double bumpAmount){
-            setSpeed(m_setPoint_Left_Speed + bumpAmount);
+        double new_value = m_setPoint_Left_Speed + bumpAmount;
+        if (Math.abs(new_value) < 1){
+            new_value = bumpAmount < 0? -1 : 1;
+        }
+        setSpeed(new_value);
     }
 
     public void setSpeed(double desiredRotationsPerSecond){

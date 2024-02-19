@@ -141,6 +141,18 @@ public class NoteSubSystem extends SubsystemBase {
                 m_Shooter.setSpeed(0);
                 m_Angle.setState(AngleSubSystem.State.BRAKE);
                 setAction(ActionRequest.IDLE);
+
+                switch (m_presentState){
+                    case INTAKING_NOTE1:
+                        setState(State.EMPTY);
+                        break;
+                    case INTAKING_NOTE2:
+                        setState(State.HAVE_NOTE1);
+                        break;
+                    case SHOOTING:
+                        setState(State.HAVE_NOTE1);
+                        break;
+                }
                 break;
             case INTAKENOTE:
                 if (m_presentState == State.EMPTY){
@@ -219,8 +231,20 @@ public class NoteSubSystem extends SubsystemBase {
         return this.m_target;
     }
 
+    public void bumpIntake1Speed(double bumpAmount){
+        m_Intake.bumpSpeed(bumpAmount);
+        m_Feeder1.bumpSpeed(bumpAmount);
+        m_Feeder2.bumpSpeed(bumpAmount);
+    }
+
+    public void bumpIntake2Speed(double bumpAmount){
+        m_Intake.bumpSpeed(bumpAmount);
+        m_Feeder1.bumpSpeed(bumpAmount);
+    }
+
     public void bumpShooterSpeed(double bumpAmount){
         m_Shooter.bumpSpeed(bumpAmount);
+        m_Feeder2.bumpSpeed(bumpAmount);
     }
 
     public void bumpAnglePosition(double bumpAmount){

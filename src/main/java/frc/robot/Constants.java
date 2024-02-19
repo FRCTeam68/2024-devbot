@@ -79,8 +79,8 @@ public final class Constants {
         public static final String CANBUS = "rio";
         //positive value makes shooter side go up
         //negative value makes shooter side go down
-        public static final double MIN_POSITION = 0;
-        public static final double MAX_POSITION = 47;   //motor rotatiions
+        public static final double MIN_POSITION = -47;
+        public static final double MAX_POSITION = 0;   //motor rotatiions
         public static final double AMP = 0; // -6;
         public static final double TRAP = 0; //-4;
         public static final double SPEAKER = 0; //-2;

@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
@@ -27,7 +28,10 @@ public class AngleSubSystem extends SubsystemBase {
         SPEAKER,
         AMP,
         TRAP,
-        INTAKE
+        INTAKE,
+        FEEDSTATION,
+        SPEAKER_PODIUM,
+        BRAKE
     }
 
     public enum Mode{
@@ -67,6 +71,8 @@ public class AngleSubSystem extends SubsystemBase {
         m_bumpCount = 0;
 
         angleMotorInit();
+
+        System.out.println("Angle subsystem created.    mode: " + m_presentMode.toString());
     }
 
     private void angleMotorInit(){
@@ -75,6 +81,9 @@ public class AngleSubSystem extends SubsystemBase {
         m_angleRightMotor.setControl(new Follower(Constants.ANGLE.LEFT_CANID, true));
 
         m_angleMotorMMV = new MotionMagicVoltage(Constants.ANGLE.SPEAKER);  
+
+        /* Keep a neutral out so we can disable the motor */
+        m_brake = new NeutralOut();
 
         TalonFXConfiguration cfg = new TalonFXConfiguration();
         /* Configure current limits */
@@ -131,30 +140,34 @@ public class AngleSubSystem extends SubsystemBase {
                                + ", count: " + m_bumpCount);
             setPosition(m_setPoint_Position + m_setPoint_Adjust);
         }
+    }
 
-        // switch(m_presentMode){
-        //     default:
-        //     case MMV:
-        //         System.out.println("angle setPositionJoy: " + desiredPosition);
-        //         m_angleLeftMotor.setControl(m_angleMotorMMV.withPosition(desiredPosition));
-        //         break;
-        //     case MMV_FOC:
-        //         //TBD
-        //         break;
-        // }
+    public void bumpPosition(double bumpAmount){
+        double new_value = m_setPoint_Position + bumpAmount;
+        if (Math.abs(new_value) < 1){
+            new_value = bumpAmount < 0? -1 : 1;
+        }
+        setPosition(new_value);
     }
 
     public void setPosition(double desiredPosition){
 
-        System.out.println("set angle desired position: " + desiredPosition);
+        System.out.println("  set angle desired position: " + desiredPosition);
+        if (desiredPosition < Constants.ANGLE.MIN_POSITION){
+            m_setPoint_Position = Constants.ANGLE.MIN_POSITION;
+            System.out.println("  trimmed to min position: " + Constants.ANGLE.MIN_POSITION);
+        }
+        else if (desiredPosition > Constants.ANGLE.MAX_POSITION){
+            m_setPoint_Position = Constants.ANGLE.MAX_POSITION;
+            System.out.println("  trimmed to max position: " + Constants.ANGLE.MAX_POSITION);
+        }
+        else{
+            m_setPoint_Position = desiredPosition;
+        }
 
-        m_setPoint_Position = desiredPosition;
-
-        System.out.println("angle present mode: " + m_presentMode.toString());
         switch(m_presentMode){
             default:
             case MMV:
-                System.out.println("call motor MMV ");
                 m_angleLeftMotor.setControl(m_angleMotorMMV.withPosition(m_setPoint_Position));
                 break;
     
@@ -163,6 +176,15 @@ public class AngleSubSystem extends SubsystemBase {
                 break;
         }
     }
+
+    public boolean atAngle(){
+        double motorPosition = m_angleLeftMotor.getPosition().getValueAsDouble();
+        System.out.println("  angle setpoint position:" + m_setPoint_Position + ", motor position: " + motorPosition );
+        boolean conditionMet =  Math.abs(m_setPoint_Position-motorPosition) < 1.0;
+        conditionMet = true;  //bypass for simulation
+        return conditionMet;
+    }
+
 
     public void setSpeakerPosition(double desiredPosition) {
         m_speaker_position = desiredPosition;
@@ -229,6 +251,12 @@ public class AngleSubSystem extends SubsystemBase {
                 break;
             case INTAKE:
                 desiredPosition = m_intake_position;
+                break;
+            case FEEDSTATION:
+            case SPEAKER_PODIUM:
+            case BRAKE:
+                // m_angleLeftMotor.setControl(m_brake);
+                m_angleLeftMotor.setVoltage(0);
                 break;
         }
         m_setPoint_Adjust = 0;

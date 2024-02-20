@@ -42,7 +42,7 @@ public class ShooterSubSystem extends SubsystemBase {
     private VoltageOut m_voltageOut;
     private VelocityVoltage m_voltageVelocity;
     private VelocityTorqueCurrentFOC m_torqueVelocity;
-    private NeutralOut m_neutral;
+    private NeutralOut m_coast;
     private double m_setPoint_Left_Voltage;
     private double m_setPoint_Right_Voltage;
     private double m_rightOffset_Voltage;
@@ -52,7 +52,6 @@ public class ShooterSubSystem extends SubsystemBase {
         m_presentMode = Mode.VOLTAGE_OUT;
         m_setPoint_Left_Speed = 0;
         m_setPoint_Right_Speed = 0;
-        m_spinUp_Speed = Constants.SHOOTER.SPEED;
         m_rightOffset_Speed = Constants.SHOOTER.RIGHT_OFFSET;
 
         shooterMotorsInit();
@@ -74,9 +73,7 @@ public class ShooterSubSystem extends SubsystemBase {
         m_torqueVelocity = new VelocityTorqueCurrentFOC(0, 0, 0, 1, 
                                          false, false, false);
         /* Keep a neutral out so we can disable the motor */
-        m_neutral = new NeutralOut();
-  
-        System.out.println("shooter subsystem created");
+        m_coast = new NeutralOut();
         
 
         TalonFXConfiguration configs = new TalonFXConfiguration();
@@ -120,6 +117,8 @@ public class ShooterSubSystem extends SubsystemBase {
         if(!status.isOK()) {
           System.out.println("Could not apply configs to right shooter motor, error code: " + status.toString());
         }
+
+        System.out.println("shooter subsystem created.   "+ "mode: " + m_presentMode.toString());
     }
 
     public void setSpinUpSpeed(double desiredSpeed){
@@ -134,7 +133,7 @@ public class ShooterSubSystem extends SubsystemBase {
         // System.out.println("shooter setSpeedesired" + desiredVoltage);
         if(m_presentMode == Mode.VOLTAGE_OUT){
             if (Math.abs(desiredVoltage) <= .1) { // Joystick deadzone
-                // System.out.println("set zeros");
+                // System.out.println("set zeros"); 
                 m_setPoint_Left_Voltage = 0;
                 m_setPoint_Right_Voltage = 0;
             }
@@ -142,39 +141,54 @@ public class ShooterSubSystem extends SubsystemBase {
                 m_setPoint_Left_Voltage = desiredVoltage;
                 m_setPoint_Right_Voltage = -desiredVoltage + m_rightOffset_Voltage;
             }
-            System.out.println("shooter setSpeedVout, L: " + m_setPoint_Left_Voltage 
-                                                + " , R: " + m_setPoint_Right_Voltage);
+            System.out.println("  shooter setSpeedVout, L: " + m_setPoint_Left_Voltage 
+                                                 + " , R: " + m_setPoint_Right_Voltage);
             m_shooterLeftMotor.setControl(m_voltageOut.withOutput(m_setPoint_Left_Voltage));
             m_shooterRightMotor.setControl(m_voltageOut.withOutput(m_setPoint_Right_Voltage));
         }
     }
 
+    public void bumpSpeed(double bumpAmount){
+        double new_value = m_setPoint_Left_Speed + bumpAmount;
+        if (Math.abs(new_value) < 1){
+            new_value = bumpAmount < 0? -1 : 1;
+        }
+        setSpeed(new_value);
+    }
 
     public void setSpeed(double desiredRotationsPerSecond){
 
-        System.out.println("set desired speed: " + desiredRotationsPerSecond);
+        System.out.println("  set Shooter desired speed: " + desiredRotationsPerSecond);
 
-        if (Math.abs(desiredRotationsPerSecond) <= 1) { // Joystick deadzone
+        if (Math.abs(desiredRotationsPerSecond) < 1) { // Joystick deadzone
             desiredRotationsPerSecond = 0;
             m_setPoint_Left_Speed = 0;
             m_setPoint_Right_Speed = 0;
-            m_shooterLeftMotor.setControl(m_neutral);
-            m_shooterRightMotor.setControl(m_neutral);
+            m_shooterLeftMotor.setControl(m_coast);
+            m_shooterRightMotor.setControl(m_coast);
         }
-        else
-            m_setPoint_Left_Speed = desiredRotationsPerSecond;
-            m_setPoint_Right_Speed = -desiredRotationsPerSecond + m_rightOffset_Speed;
-
-            System.out.println("shooter present mode: " + m_presentMode.toString());
-            switch(m_presentMode){
+        else {
+            if (desiredRotationsPerSecond > Constants.SHOOTER.MAX_SPEED){
+                m_setPoint_Left_Speed = Constants.SHOOTER.MAX_SPEED;
+                m_setPoint_Right_Speed = -Constants.SHOOTER.MAX_SPEED;
+                System.out.println("  trimmed to max speed: " + Constants.SHOOTER.MAX_SPEED);
+            }
+            else{
+                m_setPoint_Left_Speed = desiredRotationsPerSecond;
+                m_setPoint_Right_Speed = -desiredRotationsPerSecond + m_rightOffset_Speed;
+            }
+           switch(m_presentMode){
                 case VOLTAGE_OUT:
-                    System.out.println("voltage out mode - use setSpeedVout instead");
+                    m_setPoint_Left_Voltage = (m_setPoint_Left_Speed/Constants.SHOOTER.MAX_SPEED)*Constants.ROLLER.MAX_VOLTAGE;
+                    m_setPoint_Right_Voltage = (m_setPoint_Right_Speed/Constants.SHOOTER.MAX_SPEED)*Constants.ROLLER.MAX_VOLTAGE;
+                    System.out.println("         desired Voltage, L: " + m_setPoint_Left_Voltage 
+                                                            + " , R: " + m_setPoint_Right_Voltage);
+                    m_shooterLeftMotor.setControl(m_voltageOut.withOutput(m_setPoint_Left_Voltage));
+                    m_shooterRightMotor.setControl(m_voltageOut.withOutput(m_setPoint_Right_Voltage));
                     break;
                 default:
                 case VOLTAGE_FOC:
                     /* Use voltage velocity */
-                    //m_intakeMotor.setControl(m_voltageVelocity.withVelocity(desiredRotationsPerSecond));
-                    System.out.println("call motor voltage foc");
                     m_shooterLeftMotor.setControl(m_voltageVelocity.withVelocity(m_setPoint_Left_Speed));
                     m_shooterRightMotor.setControl(m_voltageVelocity.withVelocity(m_setPoint_Right_Speed));
                     break;
@@ -182,12 +196,19 @@ public class ShooterSubSystem extends SubsystemBase {
                 case CURRENTTORQUE_FOC:
                     double friction_torque = (desiredRotationsPerSecond > 0) ? 1 : -1; // To account for friction, we add this to the arbitrary feed forward
                     /* Use torque velocity */
-                    //m_intakeMotor.setControl(m_torqueVelocity.withVelocity(desiredRotationsPerSecond).withFeedForward(friction_torque));
-                    System.out.println("call motor torqueVelocity");
                     m_shooterLeftMotor.setControl(m_torqueVelocity.withVelocity(m_setPoint_Left_Speed).withFeedForward(friction_torque));
                     m_shooterRightMotor.setControl(m_torqueVelocity.withVelocity(m_setPoint_Right_Speed).withFeedForward(friction_torque));
                     break;
             }
+        }
+    }
+
+    public boolean atSpeed(){
+        double motorSpeed = m_shooterLeftMotor.getVelocity().getValueAsDouble();
+        System.out.println("  left shooter setpoint speed:" + m_setPoint_Left_Speed + ", motor speed: " + motorSpeed );
+        boolean conditionMet =  Math.abs(m_setPoint_Left_Speed-motorSpeed) < 5.0;
+        conditionMet = true;  //bypass for simulation
+        return conditionMet;
     }
 
     public double getSpinUpSpeed(){
@@ -204,6 +225,10 @@ public class ShooterSubSystem extends SubsystemBase {
 
     public double getRightSpeed(){
         return this.m_setPoint_Right_Speed;
+    }
+
+    public double getSpeed(){
+        return this.m_setPoint_Left_Speed;
     }
 
     @Override

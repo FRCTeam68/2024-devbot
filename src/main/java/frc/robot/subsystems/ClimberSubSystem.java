@@ -122,7 +122,6 @@ public class ClimberSubSystem extends SubsystemBase {
         }
     }
 
-
     public void setSpeedVout(double leftDesiredVoltage, double rightDesiredVoltage){
         // System.out.println("climber setSpeedesired" + desiredVoltage);
 

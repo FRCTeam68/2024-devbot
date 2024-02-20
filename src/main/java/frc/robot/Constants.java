@@ -16,90 +16,83 @@ package frc.robot;
  */
 public final class Constants {
 
+    private static RobotType robotType = RobotType.DEVBOT;
+
+    public enum RobotType {
+        CHASSISBOT,
+        DEVBOT,
+        COMPBOT
+    }
+
+    public static RobotType getRobot() {
+    return robotType;
+  }
+
     public static final class LED {
         public static final int PWMPORT = 0;
         public static final int BUFFERSIZE = 120;
     }
     
+    public static final class ROLLER {
+        public static final double MAX_SPEED = 100;
+        public static final double MAX_VOLTAGE = 12;
+    }
+
     public static final class INTAKE {
         public static final int CANID = 20;
-        public static final double SPEED = 1.0;
+        public static final String CANBUS = "DRIVEbus";
+        public static final double TAKE_NOTE_SPEED = 40;
+        public static final double SPIT_NOTE_SPEED = 30;
+        public static final double BUMP_VALUE = 0.2;  // 50 counts / second = 10rps
+    }
+
+    public static final class FEEDER1 {
+        public static final int CANID = 35;
+        public static final String CANBUS = "rio";
+        public static final double TAKE_NOTE_SPEED = 20;
+        public static final double SPIT_NOTE_SPEED = 40;
+    }
+
+        public static final class FEEDER2 {
+        public static final int CANID = 36;
+        public static final String CANBUS = "rio";
+        public static final double TAKE_NOTE_SPEED = 20;
+        public static final double SHOOT_SPEED = 20;
     }
 
     public static final class SHOOTER {
         public static final int LEFT_CANID = 30;
         public static final int RIGHT_CANID = 31;
-        public static final double SPEED = 20;
+        public static final String CANBUS = "rio";
+        public static final double MAX_SPEED = 100;  // rps
+        public static final double SHOOT_SPEED = 80;
         public static final double RIGHT_OFFSET = 0;
+        public static final double BUMP_VALUE = 1;   // rps
+        public static final double SPINUP_TIME = 2;  // seconds
+        public static final double STOP_TIME = 2; 
+        public static final double ATSPEED_TIMEOUT = 1;  //seconds
     }
 
     public static final class ANGLE {
         public static final int LEFT_CANID = 32;
         public static final int RIGHT_CANID = 33;
-        public static final double SPEAKER = 0;
+        public static final String CANBUS = "rio";
         //positive value makes shooter side go up
         //negative value makes shooter side go down
-        public static final double AMP = -6;
-        public static final double TRAP = -4;
-        public static final double INTAKE = 2;
-        public static final double BUMP_VALUE = .25;
-        // public static final double VISION = 0;
+        public static final double MIN_POSITION = -12;   //in intake position, -12 will put steepest angel
+        public static final double MAX_POSITION = 12;   //motor rotatiions, in intake position, 12 is a low we need to shoot
+        public static final double AMP = 0; // -6;
+        public static final double TRAP = 0; //-4;
+        public static final double SPEAKER = 0; //-2;
+        public static final double INTAKE = 0;
+        public static final double BUMP_VALUE = .25;    //rotations
+        public static final double ATANGLE_TIMEOUT = 1;  //seconds
     }
 
     public static final class CLIMBER {
         public static final int LEFT_CANID = 40;
         public static final int RIGHT_CANID = 41;
+        public static final String CANBUS = "DRIVEbus";
         public static final double MAX_HEIGHT = 9;   //inches
     }
-
-    // public static final class CAMERA {
-    //     public static final double BALLCAMERAANGLE = 0; // Degrees
-    //     public static final double SHOOTERCAMERAANGLE = 0; // Degrees
-    //     public static final double BALLCAMERAHEIGHT = .8; // Meters
-    //     public static final double SHOOTERCAMERAHEIGHT = .8; // Meters
-    //     //public static final double BALLTARGETHEIGHT = Units.inchesToMeters(9.5); // Height to top of the ball
-    //     // public static final double kMinimumRange = 4; // Meters
-    //     // public static final double kMaximumRange = -9; // Meters
-    //     public static final int LIMELIGHTPIPELINE = 0;
-    //     public static final int HD3000PIPELINE = 0;
-    // }
-
-    // public static final class SHOOTER {
-    //     public static final int MOTORPORT = 14;
-    //     public static final int MOTOR2PORT = 15;
-    //     public static final int HOODPORT = 16;
-    
-    //     public static final double HOODkP = 0.01;
-    //     public static final int HOODCIRCLE = -55500;
-    //     public static final int HOODLOW = -30000;
-    //     public static final int HOODDEFENSE = -65500;
-
-    //     public static final double TOLERANCERPS = 6.0;
-        
-    //     public static final double WHEELDIAMETERINCHES = 4;
-    //     public static final int ENCODERCPR = 2048;
-    //     // Multiply by 10 to get Raw per second.  Divide by encoder CPR to get rotations
-    //     public static final double RAWTOFLYWHEELRPS = 10 / (double) ENCODERCPR;
-
-    //     // Multiply by encoder CPR to get raw counts per second.  Divide by 10 to get per decisecond
-    //     public static final double RPSTORAW = (double) ENCODERCPR / 10;
-
-    //     public static final double LOWFF = 0.24;
-    //     public static final double FENDERFF = 0.4; //.45 for low energy shot
-    //     public static final double CIRCLEFF = 0.45;//.5
-    //     public static final double LAUNCHFF = 0.55;
-    //     public static final double DEFENDFF = 0.36;
-    //     public static final double P = 0;//999999999999999.0;
-    //     public static final double D = 0;
-    
-    //     // On a real robot the feedforward constants should be empirically determined; these are
-    //     // reasonable guesses.
-    //     public static final double kSVOLTS = 0.73856;
-    //     public static final double kVVOLTSECONDSPERROTATION = 0.11106;
-    //     public static final double kA = 0.0028227;
-
-    //     public static final double SPEEDCHANGE = 0.01;
-    //     public static final double SETPOINT2 = 2.0;
-    //     public static final double SETPOINT4 = 4.0;
-    // }
 }

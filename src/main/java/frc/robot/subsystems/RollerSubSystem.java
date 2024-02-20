@@ -7,6 +7,7 @@ import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -32,7 +33,7 @@ public class RollerSubSystem extends SubsystemBase {
     private NeutralOut m_brake;
     
 
-    public RollerSubSystem(String name, int canID, String canbus){
+    public RollerSubSystem(String name, int canID, String canbus, boolean inverted){
         m_name = name;
         m_presentMode = Mode.VOLTAGE_OUT;
         m_setPoint_Speed = 0;
@@ -50,6 +51,8 @@ public class RollerSubSystem extends SubsystemBase {
         /* Keep a neutral out so we can disable the motor */
         m_brake = new NeutralOut();
         TalonFXConfiguration configs = new TalonFXConfiguration();
+
+        configs.MotorOutput.Inverted = inverted ? InvertedValue.CounterClockwise_Positive : InvertedValue.Clockwise_Positive;
 
         /* Voltage-based velocity requires a feed forward to account for the back-emf of the motor */
         // configs.Slot0.kP = 0.11; // An error of 1 rotation per second results in 2V output

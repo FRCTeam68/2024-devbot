@@ -41,23 +41,23 @@ public final class Constants {
     public static final class INTAKE {
         public static final int CANID = 20;
         public static final String CANBUS = "DRIVEbus";
-        public static final double TAKE_NOTE_SPEED = -40;
+        public static final double TAKE_NOTE_SPEED = 40;
         public static final double SPIT_NOTE_SPEED = 30;
         public static final double BUMP_VALUE = 0.2;  // 50 counts / second = 10rps
     }
 
     public static final class FEEDER1 {
-        public static final int CANID = 34;
+        public static final int CANID = 35;
         public static final String CANBUS = "rio";
-        public static final double TAKE_NOTE_SPEED = -30;
+        public static final double TAKE_NOTE_SPEED = 20;
         public static final double SPIT_NOTE_SPEED = 40;
     }
 
         public static final class FEEDER2 {
-        public static final int CANID = 35;
+        public static final int CANID = 36;
         public static final String CANBUS = "rio";
-        public static final double TAKE_NOTE_SPEED = -20;
-        public static final double SHOOT_SPEED = 60;
+        public static final double TAKE_NOTE_SPEED = 20;
+        public static final double SHOOT_SPEED = 20;
     }
 
     public static final class SHOOTER {
@@ -68,7 +68,7 @@ public final class Constants {
         public static final double SHOOT_SPEED = 80;
         public static final double RIGHT_OFFSET = 0;
         public static final double BUMP_VALUE = 1;   // rps
-        public static final double SPINUP_TIME = 1;  // seconds
+        public static final double SPINUP_TIME = 2;  // seconds
         public static final double STOP_TIME = 2; 
         public static final double ATSPEED_TIMEOUT = 1;  //seconds
     }
@@ -79,8 +79,8 @@ public final class Constants {
         public static final String CANBUS = "rio";
         //positive value makes shooter side go up
         //negative value makes shooter side go down
-        public static final double MIN_POSITION = -47;
-        public static final double MAX_POSITION = 0;   //motor rotatiions
+        public static final double MIN_POSITION = -12;   //in intake position, -12 will put steepest angel
+        public static final double MAX_POSITION = 12;   //motor rotatiions, in intake position, 12 is a low we need to shoot
         public static final double AMP = 0; // -6;
         public static final double TRAP = 0; //-4;
         public static final double SPEAKER = 0; //-2;

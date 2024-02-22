@@ -20,7 +20,7 @@ import com.revrobotics.Rev2mDistanceSensor.Port;
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
-  private Rev2mDistanceSensor distOnboard; 
+  // private Rev2mDistanceSensor distOnboard; 
   private Rev2mDistanceSensor distMXP;
 
   private RobotContainer m_robotContainer;
@@ -34,10 +34,10 @@ public class Robot extends TimedRobot {
      * Rev 2m distance sensor can be initialized with the Onboard I2C port
      * or the MXP port. Both can run simultaneously.
      */
-    distOnboard = new Rev2mDistanceSensor(Port.kOnboard, Unit.kInches, RangeProfile.kDefault);
+    // distOnboard = new Rev2mDistanceSensor(Port.kOnboard, Unit.kInches, RangeProfile.kDefault);
     distMXP = new Rev2mDistanceSensor(Port.kMXP);
 
-    m_robotContainer = new RobotContainer();
+    // m_robotContainer = new RobotContainer();
 
 
   }
@@ -83,17 +83,17 @@ public class Robot extends TimedRobot {
      * must be called. This starts a background thread which will periodically
      * poll all enabled sensors and store their measured range.
      */
-    distOnboard.setAutomaticMode(true);
+    distMXP.setAutomaticMode(true);
 
   }
 
   @Override
   public void teleopPeriodic() {
 
-    if(distOnboard.isRangeValid()) {
-      SmartDashboard.putNumber("Range Onboard", distOnboard.getRange());
-      SmartDashboard.putNumber("Timestamp Onboard", distOnboard.getTimestamp());
-    }
+    // if(distOnboard.isRangeValid()) {
+    //   SmartDashboard.putNumber("Range Onboard", distOnboard.getRange());
+    //   SmartDashboard.putNumber("Timestamp Onboard", distOnboard.getTimestamp());
+    // }
 
     if(distMXP.isRangeValid()) {
       SmartDashboard.putNumber("Range MXP", distMXP.getRange());
